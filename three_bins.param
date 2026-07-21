@@ -1,0 +1,70 @@
+#-----CosmoPower binned-omega_m param file (fixed binning, TT-only)-----
+
+# EXPERIMENTS TO USE
+# ------------------
+# Replace this with whatever your installation actually lists under
+# montepython/likelihoods/ for Planck 2018 (you mentioned only Planck
+# 2018 is available). Do NOT reuse an existing base_2018*.param's
+# cosmo block below -- but DO copy its nuisance-parameter block
+# wholesale, since those are specific to the likelihood's internal
+# foreground/calibration model and have nothing to do with the
+# binned-omega_m modification.
+data.experiments=['fake_planck_highl_TTTEEE']
+# COSMOLOGICAL PARAMETERS
+# ------------------------
+# These names must exactly match what classy.py's Class.set()/compute()
+# expects (see montepython_shim/classy.py). Format per MontePython:
+#   'name': [mean, min, max, sigma_for_proposal, scale, role]
+# scale=1 means the value passed to cosmo.set() is used as-is (no *0.01
+# or similar rescaling).
+
+data.parameters['omega_b']          = [ 2.24,   1.9,   2.6,   0.02,  0.01, 'cosmo']
+data.parameters['h']                = [ 0.674,  0.6,   0.75,   0.01,  1,    'cosmo']
+data.parameters['tau_reio']         = [ 0.054,  0.02,  0.10,  0.005, 1,    'cosmo']
+data.parameters['n_s']              = [ 0.965,  0.92,  1.00,  0.004, 1,    'cosmo']
+data.parameters['ln10^{10}A_s']     = [ 3.044,  2.9,   3.2,   0.015, 1,    'cosmo']
+
+# omega_b above uses scale=0.01 (i.e. MontePython proposes/stores
+# 100*omega_b = 2.24, and multiplies by 0.01 before calling
+# cosmo.set(omega_b=...)) -- this matches the usual MontePython
+# convention for omega_b/omega_cdm-type parameters and keeps proposal
+# step sizes O(1). Adjust if you'd rather sample omega_b directly.
+
+# BINNED omega_m PARAMETERS (fixed binning -- l_switch is NOT sampled;
+# it's set via the L_SWITCH environment variable read by classy.py)
+#-----CosmoPower binned-omega_m param file (fixed binning, TT-only)-----
+data.parameters['l_switch1'] = [800, 800, 800, 0, 1, 'cosmo']
+data.parameters['l_switch2'] = [1600, 1600, 1600, 0, 1, 'cosmo']
+data.parameters['l_switch3'] = [2508, 2508, 2508, 0, 1, 'cosmo']
+data.parameters['omega_m0'] = [0.15, 0.05, 0.25, 0.005, 1, 'cosmo']
+data.parameters['omega_m1'] = [0.15, 0.05, 0.25, 0.005, 1, 'cosmo']
+data.parameters['omega_m2'] = [0.15, 0.05, 0.25, 0.005, 1, 'cosmo']
+#data.parameters['Om_bin2'] = [0.31, 0.1, 0.5, 0.005, 1, 'cosmo']
+
+# NUISANCE PARAMETERS
+# --------------------
+# Paste in the nuisance-parameter block from MontePython's shipped
+# base_2018_plikHM_*.param (or whichever variant matches
+# data.experiments above) UNCHANGED here. Those parameters belong to
+# the likelihood's foreground/calibration model, not to the
+# cosmological model, and the shim doesn't touch them.
+#
+# data.parameters['A_planck']       = [...]
+# ... etc, copy verbatim from the matching example .param file that
+# ships with your MontePython install (usually under montepython/input/).
+
+# DERIVED PARAMETERS
+# -------------------
+# Only include derived parameters the shim actually implements (see
+# CAVEAT 1 in classy.py -- currently just H0 and a placeholder Omega_m
+# defined from Om_bin0). Do not add sigma8, rs_drag, age, etc. until
+# classy.py's get_current_derived_parameters() is extended to compute
+# them meaningfully for this model.
+data.parameters['H0']     = [0, -1, -1, 0, 1, 'derived']
+#data.parameters['Omega_m'] = [0, -1, -1, 0, 1, 'derived']
+
+# OTHER MONTEPYTHON SETTINGS
+data.cosmo_arguments = {}   # nothing extra needed -- classy.py's Class
+                            # only understands the params listed above
+data.N = 10
+data.write_step = 5

@@ -1,0 +1,7 @@
+2026-07-20_30000__4.txt	  Number of steps:30000	 Steps accepted:1446	 acc = 0.048	min(-loglike) = 108.69
+2026-07-20_30000__1.txt	  Number of steps:30000	 Steps accepted:1548	 acc = 0.052	min(-loglike) = 108.76
+2026-07-20_30000__2.txt	  Number of steps:30000	 Steps accepted:1626	 acc = 0.054	min(-loglike) = 108.94
+2026-07-20_30000__3.txt	  Number of steps:30000	 Steps accepted:1579	 acc = 0.053	min(-loglike) = 108.59
+--> Total    number    of    steps: 120000
+--> Total number of accepted steps: 6199
+--> Minimum of -logLike           : 108.59
