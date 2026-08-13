@@ -59,8 +59,8 @@ FIDUCIAL_PARAMS = {
 
 # The injected step: Omega_m-like bin parameters below vs above L_SWITCH.
 # "Slightly different" -> a few-percent step by default; tune to taste.
-OMEGA_M_LOW_L = 0.12   # applies to l  < L_SWITCH  (Om_bin0)
-OMEGA_M_HIGH_L = 0.17 # applies to l >= L_SWITCH  (Om_bin1)
+#OMEGA_M_LOW_L = 0.12   # applies to l  < L_SWITCH  (Om_bin0)
+#OMEGA_M_HIGH_L = 0.17 # applies to l >= L_SWITCH  (Om_bin1)
 
 L_SWITCH_DEFAULT = 1250
 LMIN, LMAX, DELTA_L = 30, 2508, 30       # bandpower binning
@@ -98,8 +98,8 @@ def main():
     parser.add_argument("--noiseless", action="store_true",
                          help="Write the noiseless model instead of a noisy realization "
                               "(sigma column is still filled in either way).")
-    parser.add_argument("--l-switch", type=float, default=L_SWITCH_DEFAULT,
-                         help="ell at which omega_m__0 -> omega_m__1 (default: 1250).")
+#    parser.add_argument("--l-switch", type=float, default=L_SWITCH_DEFAULT,
+#                         help="ell at which omega_m__0 -> omega_m__1 (default: 1250).")
     args = parser.parse_args()
 
     os.makedirs(args.outdir, exist_ok=True)
@@ -109,10 +109,14 @@ def main():
     # to export -- if it's already set in the environment we leave it alone
     # so `export L_SWITCH=...` still takes precedence, but warn if they differ.
     params = dict(FIDUCIAL_PARAMS)
-    params["omega_m0"] = OMEGA_M_LOW_L
-    params["omega_m1"] = OMEGA_M_HIGH_L
-    params["l_switch1"] = args.l_switch   # first (and only interior) edge: 1250
-    params["l_switch2"] = LMAX            # final edge
+    params["omega_m0"] = 0.12
+    params["omega_m1"] = 0.16
+    params["omega_m2"] = 0.11
+    params["omega_m3"] = 0.13
+    params["l_switch1"] = 649   
+    params["l_switch2"] = 1268  
+    params["l_switch3"] = 1887
+    params["l_switch4"] = 2508 
     cosmo = Class()
     cosmo.set(params)
     cosmo.compute()
@@ -155,8 +159,6 @@ def main():
 
     outfile = os.path.join(args.outdir, "fake_planck_highl_TTTEEE_bandpowers.dat")
     full_header = ("l_center Dl_TT sigma_TT Dl_TE sigma_TE Dl_EE sigma_EE "
-                    f"(uK^2; generated with Om_bin0={OMEGA_M_LOW_L}, "
-                    f"Om_bin1={OMEGA_M_HIGH_L}, L_SWITCH={args.l_switch}, "
                     f"seed={args.seed}, noiseless={args.noiseless})")
     np.savetxt(outfile, out, header=full_header)
     print(f"saved {outfile}  ({n} bandpowers, {LMIN}<=l<={LMAX}, delta_l={DELTA_L})")
