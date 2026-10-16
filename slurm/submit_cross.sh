@@ -13,11 +13,11 @@ CHAINS=1-8        # chains per run (e.g. 1-2 for just two chains)
 mkdir -p "$HOME/omega_m/logs"
 
 # 1) CLASS mock, CosmoPower sampler
-PIPELINE=with_cosmopower MODEL_FROM=with_class MODEL=lcdm.dat PARAM=one_bin.param \
+PIPELINE=with_cp_lcdm MODEL_FROM=with_class MODEL=lcdm.dat PARAM=one_bin.param \
     sbatch --job-name=cp_on_classmock --array=$CHAINS "$SCRIPT"
 
 # 2) CosmoPower mock, CLASS sampler
-PIPELINE=with_class MODEL_FROM=with_cosmopower MODEL=lcdm.dat PARAM=one_bin.param \
-    sbatch --job-name=class_on_cpmock --array=$CHAINS -c 4 --mem=8G "$SCRIPT"
+#PIPELINE=with_class MODEL_FROM=with_cosmopower MODEL=lcdm.dat PARAM=one_bin.param \
+#    sbatch --job-name=class_on_cpmock --array=$CHAINS -c 4 --mem=8G "$SCRIPT"
 
 squeue -u "$USER"
