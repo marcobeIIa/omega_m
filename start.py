@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 
 cp_nn = cosmopower_NN(
     restore=True,
-    restore_filename="/Users/bellamarco01/uni/omega_m/cosmopower/cosmopower/trained_models/CP_paper/CMB/cmb_TT_NN"
+    restore_filename="/Users/bellamarco01/uni/omega_m/with_cosmopower/cosmopower/cosmopower/trained_models/CP_paper/CMB"
 )
 
 print(cp_nn.parameters)

@@ -1,0 +1,30 @@
+# fake_planck_highl_TTTEEE.data
+#
+# Config for the toy/fake high-l TT/TE/EE likelihood. Points at the mock
+# bandpower file produced by generate_fake_data.py.
+#
+# Path is resolved relative to data.path['data'] the same way real
+# MontePython likelihoods do it -- either copy the .dat file into your
+# MontePython data/ directory, or just set this to an absolute path.
+
+fake_planck_highl_TTTEEE.data_directory = data.path['data']
+fake_planck_highl_TTTEEE.data_file = 'fake_planck_highl_TTTEEE_bandpowers.dat'
+
+# Which spectra to actually include in the chi2 (skip a spectrum here if
+# your shim doesn't produce it -- e.g. if it only does TT, set
+# use_te = False and use_ee = False).
+fake_planck_highl_TTTEEE.use_tt = True
+fake_planck_highl_TTTEEE.use_te = True
+fake_planck_highl_TTTEEE.use_ee = True
+
+# Optional ell cuts applied on top of whatever range is in the data file
+# (set to None to use everything in the file).
+fake_planck_highl_TTTEEE.lmin = None
+fake_planck_highl_TTTEEE.lmax = None
+
+# Optional overall calibration nuisance, modeled the way real Planck likes
+# do it (model_Dl *= A_planck**2). Set use_nuisance = [] and
+# vary_calibration = False to turn this off entirely and just use raw chi2.
+fake_planck_highl_TTTEEE.vary_calibration = False
+fake_planck_highl_TTTEEE.A_planck_prior_center = 1.0
+fake_planck_highl_TTTEEE.A_planck_prior_variance = 0.0025 ** 2

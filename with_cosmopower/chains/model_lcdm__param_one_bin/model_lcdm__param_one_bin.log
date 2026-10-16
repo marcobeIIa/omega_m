@@ -1,0 +1,11 @@
+2026-10-09_100000__6.txt	  Number of steps:100000	 Steps accepted:25149	 acc = 0.25	min(-loglike) = 0.04
+2026-10-09_100000__1.txt	  Number of steps:100000	 Steps accepted:25543	 acc = 0.26	min(-loglike) = 0.07
+2026-10-09_100000__8.txt	  Number of steps:100000	 Steps accepted:25350	 acc = 0.25	min(-loglike) = 0.09
+2026-10-09_100000__7.txt	  Number of steps:99821	 Steps accepted:25380	 acc = 0.25	min(-loglike) = 0.14
+2026-10-09_100000__4.txt	  Number of steps:100000	 Steps accepted:25616	 acc = 0.26	min(-loglike) = 0.05
+2026-10-09_100000__3.txt	  Number of steps:100000	 Steps accepted:25432	 acc = 0.25	min(-loglike) = 0.06
+2026-10-09_100000__2.txt	  Number of steps:100000	 Steps accepted:25045	 acc = 0.25	min(-loglike) = 0.08
+2026-10-09_100000__5.txt	  Number of steps:100000	 Steps accepted:25483	 acc = 0.25	min(-loglike) = 0.07
+--> Total    number    of    steps: 799821
+--> Total number of accepted steps: 202998
+--> Minimum of -logLike           : 0.04

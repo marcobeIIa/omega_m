@@ -1,0 +1,76 @@
+% omega_m binning -- status slides (October 2026)
+% Compile: pdflatex omega_m_binning.tex (twice). Figures in figs/ (PDF), made by the scripts in scripts/.
+\documentclass[aspectratio=169,10pt]{beamer}
+\usepackage[T1]{fontenc}
+\IfFileExists{lmodern.sty}{\usepackage{lmodern}}{}
+\usepackage{amsmath,amssymb}
+\usepackage{booktabs}
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage{array}
+\graphicspath{{figs/}}
+
+% ---------------------------------------------------------------- look
+\definecolor{ink}{HTML}{1A1A19}
+\definecolor{muted}{HTML}{6B6A63}
+\definecolor{accent}{HTML}{2A78D6}
+\definecolor{one}{HTML}{EB6834}
+\definecolor{two}{HTML}{2A78D6}
+\definecolor{three}{HTML}{1BAF7A}
+\definecolor{wash}{HTML}{EEF4FC}
+\setbeamercolor{normal text}{fg=ink}
+\setbeamercolor{frametitle}{fg=ink}
+\setbeamercolor{title}{fg=ink}
+\setbeamercolor{structure}{fg=accent}
+\setbeamercolor{itemize item}{fg=accent}
+\setbeamercolor{itemize subitem}{fg=muted}
+\setbeamerfont{frametitle}{size=\large,series=\bfseries}
+\setbeamertemplate{navigation symbols}{}
+\setbeamertemplate{itemize items}[circle]
+\setbeamertemplate{frametitle}{%
+  \vspace*{0.35em}\insertframetitle\par\vspace{-0.2em}%
+  {\color{accent}\rule{\textwidth}{0.6pt}}\vspace{-0.6em}}
+\setbeamertemplate{footline}{%
+  \hspace*{0.6em}{\color{muted}\scriptsize $\omega_m$ binning --- second set, October 2026}\hfill
+  {\color{muted}\scriptsize\insertframenumber}\hspace*{0.8em}\vspace*{0.45em}}
+\setlength{\leftmargini}{1.1em}
+\setlength{\leftmarginii}{1.0em}
+\newcommand{\takeaway}[1]{%
+  \begin{beamercolorbox}[wd=\textwidth,sep=0.45em]{}\colorbox{wash}{\parbox{\dimexpr\textwidth-2\fboxsep}{\small #1}}\end{beamercolorbox}}
+\newcommand{\om}{\omega_m}
+\newcommand{\lcdm}{$\Lambda$CDM}
+\newcommand{\sm}{\scriptsize}
+
+
+\begin{document}
+
+\begin{document}
+
+% ======================================================================
+\begin{frame}{How much does $\partial C_\ell/\partial\om$ depend on the other parameters?}
+\small
+At the benchmark-1 point, $\partial C_\ell/\partial\om$ recomputed with each \lcdm\ parameter $\theta_i$ shifted by $\pm3\%$;
+change measured with Planck-like noise weighting (33\,$\mu$K-arcmin, $7'$ beam, $f_{\rm sky}=0.57$).
+
+\vspace{0.6em}
+\centering
+\begin{tabular}{@{}lrrrrc@{}}
+\toprule
+& \multicolumn{4}{c}{change in $\partial C_\ell/\partial\om$, $\theta_i$ shifted $\pm3\%$} & same change at a \\
+\cmidrule(lr){2-5}
+shifted $\theta_i$ & TT & TE & EE & $\phi\phi$ & $1\sigma$ shift (TT/TE/EE) \\
+\midrule
+$h$        & $10.5\%$ & $11.0\%$ & $8.9\%$ & $1.7\%$ & $\sim3\%$ \\
+$\omega_b$ & $4.6\%$  & $4.5\%$  & $3.4\%$ & $1.3\%$ & $\sim1\%$ \\
+$A_s$      & $2.8\%$  & $2.7\%$  & $2.8\%$ & $3.0\%$ & $\sim0.8\%$ \\
+$n_s$      & $2.0\%$  & $1.6\%$  & $1.7\%$ & $5.3\%$ & $\sim0.3\%$ \\
+$\tau$     & $0.6\%$  & $0.8\%$  & $0.9\%$ & $0.1\%$ & $\sim1.6\%$ \\
+\bottomrule
+\end{tabular}
+
+\vspace{1.0em}
+\raggedright
+\takeaway{For a $1\sigma$ shift in any other parameter, $\partial C_\ell/\partial\om$ changes by at most $\sim3\%$ (from $h$). A $\pm3\%$ step is a much larger move than $1\sigma$ for $h$, $\omega_b$, $A_s$, $n_s$, and a smaller one for $\tau$, hence its larger $1\sigma$ value.}
+\end{frame}
+
+\end{document}

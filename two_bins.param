@@ -1,4 +1,4 @@
-#-----CosmoPower binned-omega_m param file (fixed binning, TT-only)-----
+#-----CosmoPower binned-omega_m param file (fixed binning)-----
 
 # EXPERIMENTS TO USE
 # ------------------
@@ -9,7 +9,7 @@
 # wholesale, since those are specific to the likelihood's internal
 # foreground/calibration model and have nothing to do with the
 # binned-omega_m modification.
-data.experiments=['fake_planck_highl_TTTEEE']
+data.experiments=['fake_planck_realistic']
 # COSMOLOGICAL PARAMETERS
 # ------------------------
 # These names must exactly match what classy.py's Class.set()/compute()
@@ -60,6 +60,8 @@ data.parameters['omega_m1'] = [0.15, 0.05, 0.25, 0.005, 1, 'cosmo']
 # them meaningfully for this model.
 data.parameters['H0']     = [0, -1, -1, 0, 1, 'derived']
 #data.parameters['Omega_m'] = [0, -1, -1, 0, 1, 'derived']
+fake_planck_realistic.l_max = 2508
+fake_planck_realistic.fiducial_file = 'fid_two_bins_null.dat'
 
 # OTHER MONTEPYTHON SETTINGS
 data.cosmo_arguments = {}   # nothing extra needed -- classy.py's Class

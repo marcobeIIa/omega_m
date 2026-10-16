@@ -1,0 +1,14 @@
+python models/make_fiducial.py --use_cosmopower --omega_m 0.15 0.15 --l_switch 1250 2508 --name fid_two_bins_null.dat
+python models/make_fiducial.py --use_class      --omega_m 0.15 0.15 --l_switch 1250 2508 --name fid_two_bins_null.dat
+
+cd montepython_fake
+
+PYTHONPATH=$HOME/uni/omega_m/with_cosmopower/class/python python montepython/MontePython.py run \
+  -p ../with_cosmopower/two_bins.param -o ../with_cosmopower/chains/two_bins -N 20000 \
+  --conf ../with_cosmopower/default.conf --chain-number 1 \
+  -c ../models/two_bins_fisher.covmat
+
+PYTHONPATH=$HOME/uni/omega_m/with_class/class/python python montepython/MontePython.py run \
+  -p ../with_class/two_bins.param -o ../with_class/chains/two_bins -N 20000 \
+  --conf ../with_class/default.conf --chain-number 1 \
+  -c ../models/two_bins_fisher.covmat

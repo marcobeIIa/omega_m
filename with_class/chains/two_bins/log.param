@@ -1,0 +1,67 @@
+#-----CLASS binned_real_CLASS (branch: 3.6, hash: 4ac6bf74c2ae53d9cf6a1fcd606834fcf11e57bb)-----
+
+#----- binned omega_m, 2 bins, fixed binning -- pipeline: with_class -----
+# Spectra: real CLASS, run once per omega_m bin (with_class/class/python/classy.py)
+# Apart from this header and the fiducial_file path, this file is identical
+# in with_class/ and with_cosmopower/: keep it that way for the benchmark.
+
+# EXPERIMENTS
+# Mock CMB likelihood: TT, TE, EE + lensing extraction, Planck-like noise.
+data.experiments=['fake_planck_realistic']
+
+# The emulator stops at l = 2508; CLASS is run to the same l_max.
+fake_planck_realistic.l_max = 2508
+# Fake data, made with models/make_fiducial.py (same pipeline as the chains).
+fake_planck_realistic.fiducial_file = '/Users/bellamarco01/uni/omega_m/with_class/model/fid_two_bins_null.dat'
+
+# COSMOLOGICAL PARAMETERS
+# [mean, min, max, proposal sigma, scale, role]; the value passed to classy is
+# value*scale (omega_b is sampled as 100*omega_b).
+data.parameters['omega_b']      = [ 2.24,  1.9,  2.6,  0.02,  0.01, 'cosmo']
+data.parameters['h']            = [ 0.674, 0.6,  0.75, 0.01,  1,    'cosmo']
+data.parameters['tau_reio']     = [ 0.054, 0.02, 0.10, 0.005, 1,    'cosmo']
+data.parameters['n_s']          = [ 0.965, 0.92, 1.00, 0.004, 1,    'cosmo']
+data.parameters['ln10^{10}A_s'] = [ 3.044, 2.9,  3.2,  0.015, 1,    'cosmo']
+
+# BINS: bin 0 = [2, l_switch1], bin 1 = (l_switch1, l_switch2].
+# l_switch is fixed (sigma = 0) and passed to classy like any other parameter.
+data.parameters['l_switch1'] = [1250, 1250, 1250, 0, 1, 'cosmo']
+data.parameters['l_switch2'] = [2508, 2508, 2508, 0, 1, 'cosmo']
+data.parameters['omega_m0']  = [0.15, 0.05, 0.25, 0.005, 1, 'cosmo']
+data.parameters['omega_m1']  = [0.15, 0.05, 0.25, 0.005, 1, 'cosmo']
+
+# DERIVED (only plain functions of the inputs exist in the binned model)
+data.parameters['H0'] = [0, -1, -1, 0, 1, 'derived']
+
+# OTHER MONTEPYTHON SETTINGS
+data.cosmo_arguments = {}
+data.N = 10
+data.write_step = 5
+
+
+#-----Likelihood-fake_planck_realistic-----
+fake_planck_realistic.data_directory = '/Users/bellamarco01/uni/omega_m/montepython_fake/data'
+fake_planck_realistic.fiducial_file = '/Users/bellamarco01/uni/omega_m/with_class/model/fid_two_bins_null.dat'
+fake_planck_realistic.l_min = 2
+fake_planck_realistic.l_max = 2508
+fake_planck_realistic.f_sky = 0.57
+fake_planck_realistic.Bmodes = False
+fake_planck_realistic.delensing = False
+fake_planck_realistic.noise_from_file = True
+fake_planck_realistic.noise_file = 'noise_fake_planck_realistic_two.dat'
+fake_planck_realistic.LensingExtraction = True
+fake_planck_realistic.neglect_TD = True
+fake_planck_realistic.unlensed_clTTTEEE = False
+fake_planck_realistic.ExcludeTTTEEE = False
+
+
+#-----------Cosmological-arguments---------
+data.cosmo_arguments.update({'lensing': 'yes', 'output': 'tCl lCl pCl', 'l_max_scalars': 2508})
+
+
+#--------Default-Configuration------
+data.path['root']	= '/Users/bellamarco01/uni/omega_m/montepython_fake'
+data.path['MontePython']	= '/Users/bellamarco01/uni/omega_m/montepython_fake/montepython'
+data.path['data']	= '/Users/bellamarco01/uni/omega_m/montepython_fake/data'
+data.path['cosmo']	= '/Users/bellamarco01/uni/omega_m/with_class/class'
+data.path['clik']	= '/Users/bellamarco01/uni/omega_m/planck/code/plc_3.0/plc-3.01'
