@@ -1,0 +1,87 @@
+\documentclass[11pt]{article}
+\usepackage[margin=2.5cm]{geometry}
+\usepackage{amsmath,amssymb}
+\setlength{\parindent}{0pt}
+\begin{document}
+
+\section*{Marginalising a Gaussian over $\theta$}
+
+\textbf{Notation.} $x=\delta\omega_m\in\mathbb{R}$, \quad $y=\delta\theta\in\mathbb{R}^5$, \quad
+$a=F_{\omega\omega}\in\mathbb{R}$, \quad $b=F_{\theta\omega}\in\mathbb{R}^5$ (so $F_{\omega\theta}=b^{T}$), \quad
+$A=F_{\theta\theta}\in\mathbb{R}^{5\times5}$, $A=A^{T}$, $A>0$.
+
+\subsection*{1. Start}
+\begin{align}
+-2\ln P(x,y) &= a\,x^2 + 2x\,b^{T}y + y^{T}Ay \\[4pt]
+P(x) &= \int d^5y\; \exp\!\Big[-\tfrac12\big(a\,x^2 + 2x\,b^{T}y + y^{T}Ay\big)\Big] \\
+&= e^{-\frac12 a x^2}\int d^5y\; \exp\!\Big[-\tfrac12\big(y^{T}Ay + 2x\,b^{T}y\big)\Big]
+\end{align}
+
+\subsection*{2. Complete the square}
+Define
+\begin{equation}
+y_* \equiv -x\,A^{-1}b .
+\end{equation}
+Expand:
+\begin{align}
+(y-y_*)^{T}A(y-y_*) &= y^{T}Ay - y_*^{T}Ay - y^{T}Ay_* + y_*^{T}Ay_* \\
+&= y^{T}Ay - 2\,y_*^{T}Ay + y_*^{T}Ay_* \qquad (A=A^{T})
+\end{align}
+Cross term:
+\begin{align}
+y_*^{T}A\,y &= -x\,b^{T}(A^{-1})^{T}A\,y = -x\,b^{T}A^{-1}A\,y = -x\,b^{T}y \\
+\Rightarrow\; -2\,y_*^{T}Ay &= 2x\,b^{T}y
+\end{align}
+Constant term:
+\begin{equation}
+y_*^{T}Ay_* = x^2\,b^{T}A^{-1}A\,A^{-1}b = x^2\,b^{T}A^{-1}b
+\end{equation}
+Therefore
+\begin{align}
+(y-y_*)^{T}A(y-y_*) &= y^{T}Ay + 2x\,b^{T}y + x^2\,b^{T}A^{-1}b \\
+\Rightarrow\; y^{T}Ay + 2x\,b^{T}y &= (y-y_*)^{T}A(y-y_*) - x^2\,b^{T}A^{-1}b
+\end{align}
+
+\subsection*{3. Substitute back}
+\begin{align}
+P(x) &= e^{-\frac12 a x^2}\,e^{+\frac12 x^2\, b^{T}A^{-1}b}\int d^5y\; \exp\!\Big[-\tfrac12 (y-y_*)^{T}A(y-y_*)\Big] \\
+&= \exp\!\Big[-\tfrac12 x^2\big(a - b^{T}A^{-1}b\big)\Big]\; I(x), \\[4pt]
+I(x) &\equiv \int_{\mathbb{R}^5} d^5y\; \exp\!\Big[-\tfrac12 (y-y_*)^{T}A(y-y_*)\Big]
+\end{align}
+
+\subsection*{4. Shift the integration variable}
+$x$ is fixed inside the integral, so $y_*$ is a constant vector. Let $u = y - y_*$:
+\begin{align}
+d^5u &= d^5y \qquad (\text{Jacobian } =1) \\
+y\in(-\infty,\infty)^5 &\;\Rightarrow\; u\in(-\infty,\infty)^5 \\
+I(x) &= \int_{\mathbb{R}^5} d^5u\; \exp\!\Big[-\tfrac12\, u^{T}Au\Big]
+\end{align}
+No $x$ appears on the right-hand side.
+
+\subsection*{5. Evaluate the remaining integral}
+Diagonalise $A = O^{T}\Lambda O$, $O^{T}O=\mathbb{1}$, $\Lambda=\mathrm{diag}(\lambda_1,\dots,\lambda_5)$, $\lambda_k>0$. Let $v=Ou$, $|\det O|=1$:
+\begin{align}
+u^{T}Au &= u^{T}O^{T}\Lambda O u = v^{T}\Lambda v = \sum_{k=1}^{5}\lambda_k v_k^2 \\
+I &= \int d^5v\; \exp\!\Big[-\tfrac12\sum_{k=1}^{5}\lambda_k v_k^2\Big]
+   = \prod_{k=1}^{5}\int_{-\infty}^{\infty} dv_k\; e^{-\frac12\lambda_k v_k^2} \\
+&= \prod_{k=1}^{5}\sqrt{\frac{2\pi}{\lambda_k}}
+ = \frac{(2\pi)^{5/2}}{\sqrt{\lambda_1\cdots\lambda_5}}
+ = \frac{(2\pi)^{5/2}}{\sqrt{\det A}}
+\end{align}
+
+\subsection*{6. Result}
+\begin{align}
+P(x) &= \frac{(2\pi)^{5/2}}{\sqrt{\det F_{\theta\theta}}}\;
+\exp\!\Big[-\tfrac12\, x^2\big(F_{\omega\omega} - F_{\omega\theta}F_{\theta\theta}^{-1}F_{\theta\omega}\big)\Big] \\[4pt]
+F_{\rm marg} &= F_{\omega\omega} - F_{\omega\theta}F_{\theta\theta}^{-1}F_{\theta\omega} \\
+\sigma^2(\omega_m) &= \frac{1}{F_{\rm marg}}
+\end{align}
+
+\subsection*{7. Same thing as the inverse Fisher matrix}
+Block inverse of $F=\begin{pmatrix} a & b^{T}\\ b & A\end{pmatrix}$:
+\begin{align}
+(F^{-1})_{\omega\omega} &= \big(a - b^{T}A^{-1}b\big)^{-1} \\
+\Rightarrow\; \sigma^2(\omega_m) &= (F^{-1})_{\omega\omega}
+\end{align}
+
+\end{document}
