@@ -1,0 +1,59 @@
+
+EnvironmentNameNotFound: Could not find conda environment: cp_lcdm
+You can list all discoverable environments with `conda info --envs`.
+
+
+ERROR: could not activate conda env cp_lcdm
+
+############### Job 24828202 summary from  ###############
+Name                : cp_on_classmock
+User                : mcbella
+Account             : leknoxgrp
+Partition           : high
+Nodes               : hive-as-11-2-40
+Cores               : 1
+GPUs                : 0
+State               : FAILED
+ExitCode            : 1:0
+Submit              : 2026-10-16T17:08:40
+Start               : 2026-10-16T17:08:41
+End                 : 2026-10-16T17:08:43
+Reserved walltime   : 4-00:00:00
+Used walltime       :   00:00:02
+Used CPU time       :   00:00:00
+% User (Computation): --
+% System (I/O)      : --
+Mem reserved        : 4G
+Max Mem used        : 64.43M (hive-as-11-2-40)
+Max Disk Write      : 0.00  (hive-as-11-2-40)
+Max Disk Read       : 0.00  (hive-as-11-2-40)
+
+############### Job 24828202 info ###############
+JobId=24828202 ArrayJobId=24828195 ArrayTaskId=7 JobName=cp_on_classmock
+   UserId=mcbella(3061784) GroupId=mcbella(3061784) MCS_label=N/A
+   Priority=88331 Nice=0 Account=leknoxgrp QOS=leknoxgrp-high-qos
+   JobState=COMPLETING Reason=NonZeroExitCode Dependency=(null)
+   Requeue=1 Restarts=0 BatchFlag=1 Reboot=0 ExitCode=1:0
+   RunTime=00:00:02 TimeLimit=4-00:00:00 TimeMin=N/A
+   SubmitTime=2026-10-16T17:08:40 EligibleTime=2026-10-16T17:08:40
+   AccrueTime=2026-10-16T17:08:40
+   StartTime=2026-10-16T17:08:41 EndTime=2026-10-16T17:08:43 Deadline=N/A
+   SuspendTime=None SecsPreSuspend=0 LastSchedEval=2026-10-16T17:08:40 Scheduler=Main
+   Partition=high AllocNode:Sid=login1:4091679
+   ReqNodeList=(null) ExcNodeList=(null)
+   NodeList=hive-as-11-2-40
+   BatchHost=hive-as-11-2-40
+   NumNodes=1 NumCPUs=1 NumTasks=1 CPUs/Task=1 ReqB:S:C:T=0:0:*:*
+   ReqTRES=cpu=1,mem=4G,node=1,billing=2
+   AllocTRES=cpu=1,mem=4G,node=1,billing=2
+   Socks/Node=* NtasksPerN:B:S:C=0:0:*:* CoreSpec=*
+   MinCPUsNode=1 MinMemoryNode=4G MinTmpDiskNode=0
+   Features=(null) DelayBoot=00:00:00
+   OverSubscribe=OK Exclusive=NO Contiguous=0 Licenses=(null) LicensesAlloc=(null) Network=(null)
+   Command=/home/mcbella/omega_m/slurm/run_chains.sbatch
+   SubmitLine=sbatch --job-name=cp_on_classmock --array=1-8 /home/mcbella/omega_m/slurm/run_chains.sbatch
+   WorkDir=/home/mcbella/omega_m
+   StdErr=
+   StdIn=/dev/null
+   StdOut=/home/mcbella/omega_m/logs/cp_on_classmock_24828195_7.out
+   TresPerTask=cpu=1
