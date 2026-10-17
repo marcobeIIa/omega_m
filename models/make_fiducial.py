@@ -8,8 +8,11 @@ fake_planck_realistic likelihood, with either pipeline:
                            written to with_class/model/<name>
 
 Set USE_CLASS below, or override it on the command line with --use_class /
---use_cosmopower. Both pipelines use the same binned-omega_m model, so the same
-arguments give the same cosmology in both.
+--use_cosmopower. Any other pipeline folder (e.g. with_class_mnu: real CLASS
+with one 0.06 eV neutrino + HMcode) is chosen with --pipeline <folder>.
+All pipelines use the same binned-omega_m model, so the same arguments give
+the same cosmology in each (with_class_mnu / with_cp_lcdm: omega_m includes
+the neutrino density).
 
 The file has exactly the format MontePython writes itself on a first run:
     l   C_l^TT+N_T   C_l^EE+N_P   C_l^TE   l(l+1)C_l^pp+N_dd   C_l^Td(=0)
@@ -20,6 +23,10 @@ Example (null test, both bins at 0.15), from omega_m/:
         --name fid_two_bins_null.dat               # uses USE_CLASS below
     python models/make_fiducial.py --use_class --omega_m 0.15 0.15 \
         --l_switch 1250 2508 --name fid_two_bins_null.dat
+
+Example (CLASS mock with massive neutrino, for the with_cp_lcdm emulator):
+    python models/make_fiducial.py --pipeline with_class_mnu --omega_m 0.143 \
+        --l_switch 2508 --name lcdm.dat
 
 Example (injection):
     python models/make_fiducial.py --omega_m 0.12 0.17 --l_switch 1250 2508 \
@@ -77,6 +84,9 @@ def main():
                     help="real CLASS (overrides USE_CLASS)")
     sw.add_argument("--use_cosmopower", dest="use_class", action="store_false",
                     help="CosmoPower (overrides USE_CLASS)")
+    sw.add_argument("--pipeline", default=None,
+                    help="any pipeline folder in omega_m/ with class/python/classy.py, "
+                         "e.g. with_class_mnu or with_cp_lcdm (overrides USE_CLASS)")
     ap.add_argument("--omega_b", type=float, default=0.0224)
     ap.add_argument("--h", type=float, default=0.674)
     ap.add_argument("--tau_reio", type=float, default=0.054)
@@ -87,8 +97,11 @@ def main():
     ap.add_argument("--force", action="store_true", help="overwrite an existing file")
     a = ap.parse_args()
 
-    use_class = USE_CLASS if a.use_class is None else a.use_class
-    pipeline = "with_class" if use_class else "with_cosmopower"
+    if a.pipeline is not None:
+        pipeline = a.pipeline.strip("/")
+    else:
+        use_class = USE_CLASS if a.use_class is None else a.use_class
+        pipeline = "with_class" if use_class else "with_cosmopower"
     if os.path.basename(a.name) != a.name:
         sys.exit("--name is a file name, not a path: the folder is chosen by the switch")
     a.out = os.path.join(ROOT, pipeline, "model", a.name)
@@ -100,7 +113,7 @@ def main():
     import classy
     from classy import Class
     print("pipeline: %s  (classy wrapper: %s)" % (pipeline, classy.__file__))
-    if use_class:
+    if hasattr(classy, "REAL_CLASSY_FILE"):
         print("real CLASS: %s" % classy.REAL_CLASSY_FILE)
 
     if len(a.omega_m) != len(a.l_switch):
