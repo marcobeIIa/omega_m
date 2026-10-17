@@ -33,13 +33,15 @@ CHAIN=${SLURM_ARRAY_TASK_ID:-1}
 
 case "$PIPELINE" in
     with_cosmopower) ENV=cosmopower ;;
+    with_cp_lcdm) ENV=cp_lcdm ;;
     with_class)      ENV=class ;;
-    *) echo "ERROR: PIPELINE must be with_cosmopower or with_class (got '$PIPELINE')"; exit 1 ;;
+    with_class_mnu)  ENV=class ;;
+    *) echo "ERROR: PIPELINE must be with_cosmopower, with_cp_lcdm, with_class or with_class_mnu (got '$PIPELINE')"; exit 1 ;;
 esac
 
 case "$MODEL_FROM" in
-    with_cosmopower|with_class) ;;
-    *) echo "ERROR: MODEL_FROM must be with_cosmopower or with_class (got '$MODEL_FROM')"; exit 1 ;;
+    with_cosmopower|with_class|with_cp_lcdm|with_class_mnu) ;;
+    *) echo "ERROR: MODEL_FROM must be with_cosmopower, with_cp_lcdm, with_class or with_class_mnu (got '$MODEL_FROM')"; exit 1 ;;
 esac
 
 PARAM_PATH=$ROOT/$PIPELINE/$PARAM

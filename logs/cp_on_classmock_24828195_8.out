@@ -1,0 +1,6 @@
+
+EnvironmentNameNotFound: Could not find conda environment: cp_lcdm
+You can list all discoverable environments with `conda info --envs`.
+
+
+ERROR: could not activate conda env cp_lcdm
