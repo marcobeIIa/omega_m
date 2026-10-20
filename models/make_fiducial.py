@@ -28,6 +28,15 @@ Example (CLASS mock with massive neutrino, for the with_cp_lcdm emulator):
     python models/make_fiducial.py --pipeline with_class_mnu --omega_m 0.143 \
         --l_switch 2508 --name lcdm.dat
 
+Example (2-axion EDE mock with mAxiCLASS; extra CLASS keys via --set, which
+are written to a second header line):
+    python models/make_fiducial.py --pipeline with_maxiclass --omega_m 0.15631 \
+        --l_switch 2508 --omega_b 0.02267 --h 0.72645 --tau_reio 0.060 \
+        --n_s 0.988 --lnAs 3.067 --set N_mscf=2 n_axion_mscf=3,3 \
+        theta_ini_mscf=2.8,2.8 fraction_maxion_ac=0.085,0.073 \
+        log10_maxion_ac=-3.440,-4.000 --name ede2ax_pdh0_mean.dat
+(full recipe: with_maxiclass/make_mocks.sh)
+
 Example (injection):
     python models/make_fiducial.py --omega_m 0.12 0.17 --l_switch 1250 2508 \
         --name fid_two_bins_012_017.dat
@@ -95,6 +104,9 @@ def main():
     ap.add_argument("--l_min", type=int, default=2)
     ap.add_argument("--l_max", type=int, default=2508)
     ap.add_argument("--force", action="store_true", help="overwrite an existing file")
+    ap.add_argument("--set", nargs="+", default=[], metavar="KEY=VALUE",
+                    help="extra CLASS parameters passed as they are (e.g. N_mscf=2 "
+                         "fraction_maxion_ac=0.085,0.073); written to header line 2")
     a = ap.parse_args()
 
     if a.pipeline is not None:
@@ -128,8 +140,19 @@ def main():
         params["omega_m%d" % i] = om
         params["l_switch%d" % (i + 1)] = ls
 
+    extra = {}
+    for kv in a.set:
+        if "=" not in kv:
+            sys.exit("--set wants KEY=VALUE, got %r" % kv)
+        k, v = kv.split("=", 1)
+        extra[k.strip()] = v.strip()
+    clash = set(extra) & set(params)
+    if clash:
+        sys.exit("--set cannot change %s: use the dedicated options" % sorted(clash))
+
     cosmo = Class()
     cosmo.set(params)
+    cosmo.set(extra)
     cosmo.compute()
     cl = cosmo.lensed_cl(a.l_max)
     T = cosmo.T_cmb() * 1e6  # same conversion as MontePython's get_cl
@@ -144,6 +167,14 @@ def main():
         for k, v in params.items():
             f.write(", %s = %.5g" % (k, v))
         f.write("\n")
+        if extra:
+            # line 2: everything else that went to CLASS ('; '-separated, values verbatim)
+            f.write("# Extra CLASS parameters: %s\n"
+                    % "; ".join("%s = %s" % kv for kv in extra.items()))
+        if hasattr(cosmo, "ede_summary") and int(float(extra.get("N_mscf", 0))) > 0:
+            f.write("# EDE achieved (peak of rho_i/rho_tot): %s\n" % "; ".join(
+                "field %d f = %.4f, log10 a = %.4f" % (r["field"], r["f_peak"], r["log10_a_peak"])
+                for r in cosmo.ede_summary()))
         for l in range(a.l_min, a.l_max + 1):
             f.write("%5d  " % l)
             f.write("%.8g  " % (tt[l] + nT[l]))

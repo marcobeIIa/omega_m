@@ -40,8 +40,8 @@ case "$PIPELINE" in
 esac
 
 case "$MODEL_FROM" in
-    with_cosmopower|with_class|with_cp_lcdm|with_class_mnu) ;;
-    *) echo "ERROR: MODEL_FROM must be with_cosmopower, with_cp_lcdm, with_class or with_class_mnu (got '$MODEL_FROM')"; exit 1 ;;
+    with_cosmopower|with_class|with_cp_lcdm|with_class_mnu|with_maxiclass) ;;   # with_maxiclass: mocks only
+    *) echo "ERROR: MODEL_FROM must be with_cosmopower, with_cp_lcdm, with_class, with_class_mnu or with_maxiclass (got '$MODEL_FROM')"; exit 1 ;;
 esac
 
 PARAM_PATH=$ROOT/$PIPELINE/$PARAM
