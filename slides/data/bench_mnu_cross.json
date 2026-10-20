@@ -1,0 +1,54 @@
+{
+ "CP_paper emulator  vs  CLASS (massless $\\nu$, linear lensing)": {
+  "omega_b": {
+   "pull_cp_model_on_class_mock": 0.6037945549436625,
+   "pull_class_model_on_cp_mock": -0.52183701121554
+  },
+  "h": {
+   "pull_cp_model_on_class_mock": 0.19052726175993034,
+   "pull_class_model_on_cp_mock": -0.0836167786062782
+  },
+  "tau_reio": {
+   "pull_cp_model_on_class_mock": 0.25669863821506633,
+   "pull_class_model_on_cp_mock": -0.021864101282637678
+  },
+  "n_s": {
+   "pull_cp_model_on_class_mock": 0.8637861328205606,
+   "pull_class_model_on_cp_mock": -0.7815886344922965
+  },
+  "ln10^{10}A_s": {
+   "pull_cp_model_on_class_mock": 0.4566099663339324,
+   "pull_class_model_on_cp_mock": -0.247592995291913
+  },
+  "omega_m0": {
+   "pull_cp_model_on_class_mock": 0.16659456826085373,
+   "pull_class_model_on_cp_mock": -0.2511766603110794
+  }
+ },
+ "lcdm v1 emulator (Bolliet+23)  vs  CLASS ($m_\\nu=0.06$ eV, HMcode)": {
+  "omega_b": {
+   "pull_cp_model_on_class_mock": 0.15725014702032242,
+   "pull_class_model_on_cp_mock": -0.08345929866800167
+  },
+  "h": {
+   "pull_cp_model_on_class_mock": 0.055671319446530136,
+   "pull_class_model_on_cp_mock": 0.04724942020285715
+  },
+  "tau_reio": {
+   "pull_cp_model_on_class_mock": 0.16212710078144643,
+   "pull_class_model_on_cp_mock": 0.09945245943131661
+  },
+  "n_s": {
+   "pull_cp_model_on_class_mock": 0.274062902568332,
+   "pull_class_model_on_cp_mock": -0.18694531498538622
+  },
+  "ln10^{10}A_s": {
+   "pull_cp_model_on_class_mock": 0.2336973061588712,
+   "pull_class_model_on_cp_mock": 0.006621656197860914
+  },
+  "omega_m0": {
+   "pull_cp_model_on_class_mock": 0.006940523189731077,
+   "pull_class_model_on_cp_mock": -0.08571330825276662
+  }
+ }
+}

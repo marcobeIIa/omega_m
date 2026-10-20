@@ -1,0 +1,46 @@
+#----- smooth delta omega_m(l), quadratic, linear response -- pipeline: with_cp_lcdm -----
+# Spectra: CosmoPower lcdm v1 emulators (Bolliet et al. 2023), stand-in in
+# with_cp_lcdm/class/python/classy.py ([poly] part). omega_m INCLUDES one
+# 0.06 eV neutrino. Same likelihood/priors as one_bin.param, plus
+#   C_l = C_l(LCDM at omega_m0) + dC_l/domega_m|_theta_s * delta_omega_m(l),
+#   delta_omega_m(l) = dwm_b x + dwm_c x^2,   x = (l - l_c)/1000.
+# dwm_a (constant term) is left out = 0: it is degenerate with omega_m0, so
+# omega_m0 = omega_m(l_c). l_c = 400 is the pivot where omega_m0 and dwm_b are
+# ~uncorrelated (Fisher); moving l_c only reparametrises the same model.
+# Fisher sigmas (l_c 400): dwm_b 0.0041, dwm_c 0.0053, omega_m0 0.0013.
+# Starting covmat: models/poly_fisher.covmat (-c).
+
+# EXPERIMENTS
+# Mock CMB likelihood: TT, TE, EE + lensing extraction, Planck-like noise.
+data.experiments=['fake_planck_realistic']
+
+# The mock stops at l = 2508.
+fake_planck_realistic.l_max = 2508
+
+# COSMOLOGICAL PARAMETERS
+# [mean, min, max, proposal sigma, scale, role]; the value passed to classy is
+# value*scale (omega_b is sampled as 100*omega_b).
+data.parameters['omega_b']      = [ 2.24,  1.93, 2.53, 0.02,  0.01, 'cosmo']
+data.parameters['h']            = [ 0.674, 0.6,  0.75, 0.01,  1,    'cosmo']
+data.parameters['tau_reio']     = [ 0.054, 0.02, 0.10, 0.005, 1,    'cosmo']
+data.parameters['n_s']          = [ 0.965, 0.92, 1.00, 0.004, 1,    'cosmo']
+data.parameters['ln10^{10}A_s'] = [ 3.044, 2.9,  3.2,  0.015, 1,    'cosmo']
+
+# One l-bin: the base spectrum is plain LCDM at omega_m0.
+data.parameters['l_switch1'] = [2508, 2508, 2508, 0, 1, 'cosmo']
+data.parameters['omega_m0']  = [0.15, 0.11, 0.21, 0.0013, 1, 'cosmo']
+
+# delta omega_m(l) coefficients (fixed ones have sigma = 0 and are passed to
+# classy like l_switch). Flat priors ~ +-10 Fisher sigma.
+data.parameters['dwm_b'] = [0, -0.05, 0.05, 0.004, 1, 'cosmo']
+data.parameters['dwm_c'] = [0, -0.05, 0.05, 0.005, 1, 'cosmo']
+data.parameters['l_c']   = [400, 400, 400, 0, 1, 'cosmo']
+# data.parameters['l_norm'] = [1000, 1000, 1000, 0, 1, 'cosmo']   # default 1000
+
+# DERIVED (only plain functions of the inputs exist in the binned model)
+data.parameters['H0'] = [0, -1, -1, 0, 1, 'derived']
+
+# OTHER MONTEPYTHON SETTINGS
+data.cosmo_arguments = {}
+data.N = 10
+data.write_step = 5

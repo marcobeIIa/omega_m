@@ -1,0 +1,10 @@
+
+# --- not for GitHub ---
+logs/
+*.png
+posteriors_*.pdf
+slides/figs/
+Claude outputs/
+__pycache__/
+*.pyc
+.DS_Store

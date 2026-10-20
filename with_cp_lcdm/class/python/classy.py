@@ -2,6 +2,7 @@
 classy.py -- CosmoPower-backed stand-in for CLASS's Python wrapper
 ==================================================================
 (with_cp_lcdm version: Bolliet et al. 2023 LCDM emulators, CLASS-trained)
+[poly] + optional smooth delta omega_m(l) (linear response), see below.
 
 MontePython does `from classy import Class` and then drives the object with
 set() / compute() / lensed_cl() / struct_cleanup() / empty().  This module
@@ -79,6 +80,39 @@ NOT like real classy -- deliberate, read before trusting a run:
      sampling.)  With omega_b ~ 0.0224 this means omega_m bins in about
      [0.103, 0.223]; keep the .param priors inside.
 
+[poly] Smooth delta omega_m(l), linear response (optional, 2026-10-16)
+  If any of dwm_a, dwm_b, dwm_c, dwm_d, dwm_e is passed, every spectrum
+  (TT, TE, EE, PP) becomes
+      C_l = C_l(base) + dC_l/domega_m|_theta_s * delta_omega_m(l),
+      delta_omega_m(l) = dwm_a + dwm_b x + dwm_c x^2 (+ dwm_d x^3 + dwm_e x^4),
+      x = (l - l_c) / l_norm.
+  Extra params: l_c (required), l_norm (default 1000), dlnh_dlnomega_m
+  (optional constant; default: CLASS fit, see below). Missing coefficients
+  are 0.
+  * C_l(base) is the usual model above (1 bin = plain LCDM at omega_m0).
+  * The derivative is taken at the CURRENT point (in each bin, at that bin's
+    omega_m), at fixed 100*theta_s, omega_b, tau_reio, n_s, A_s, by the chain
+        dC/domega_m|_theta = dC/domega_cdm|_H0 + dC/dH0 * dH0/domega_m|_theta,
+        dH0/domega_m|_theta = 100 h/omega_m * dlnh_dlnomega_m,
+    as ONE exact forward-mode derivative (Jacobian-vector product) through the
+    networks along that direction -- analytic, no finite-difference step.
+    dlnh_dlnomega_m = dln h/dln omega_m at fixed theta_s and omega_b (the
+    networks have no theta_s): a fit to CLASS 3.4.1 (1 nu 0.06 eV) in
+    (omega_b, omega_m, h), good to 0.3% over the prior box (-0.748 at
+    omega_b 0.02237, omega_m 0.143, h 0.674; -0.738 at the omega_m 0.15 mock).
+  * dwm_a is exactly degenerate (to first order) with omega_m0 plus the
+    matching h shift: keep dwm_a fixed to 0 when omega_m0 is free. Then
+    omega_m(l_c) = omega_m0 and dwm_b, dwm_c describe the l-dependence.
+  * Linear in delta_omega_m. Against the exact model (emulator evaluated at
+    omega_m(l), h on the CLASS fixed-theta_s curve), sqrt(chi2) of the error
+    with the fake_planck_realistic noise: constant 1/3/5 sigma(omega_m) ->
+    0.01/0.11/0.29. BUT a free quadratic is weakly constrained at high l
+    (Fisher sigma of omega_m(l): 0.005 at l 1600, 0.018 at 2500), and at
+    (dwm_b, dwm_c) on the 2-sigma Fisher ellipse the error is ~3 (as large as
+    the signal): far from b = c = 0 this is a phenomenological model, not
+    "omega_m at that l". The perturbation itself is not box-checked.
+  * Without dwm_* keys the code path is the old one, bit for bit.
+
 Configuration (environment variables, optional):
     COSMOPOWER_CMB_DIR   [lcdm v1] directory holding TTTEEE/ and PP/ of the
                          cosmopower-organization/lcdm repo (default:
@@ -147,6 +181,54 @@ OMEGA_NU = 0.00064420
 
 _T_CMB = 2.7255  # K; CLASS default
 
+# [poly] polynomial coefficients of delta_omega_m(l), in order of power of x
+_POLY_KEYS = ("dwm_a", "dwm_b", "dwm_c", "dwm_d", "dwm_e")
+_L_NORM_DEFAULT = 1000.0
+
+
+def _dlnh_dlnomega_m(omega_b, omega_m, h):
+    """[poly] dln h/dln omega_m at fixed 100*theta_s and omega_b.
+
+    Fit (linear in logs) to real CLASS 3.4.1 (N_ur 2.0328 + 1 nu 0.06 eV,
+    theta_s_100 by central differences) on a grid over omega_b [0.0193,
+    0.0253], omega_m [0.11, 0.21], h [0.60, 0.75]; checked at 25 random
+    points in that box: max error 0.26%, rms 0.13%. (A constant -0.748 would
+    be off by up to 19% at the box edges; ~1.4% at omega_m 0.15.)
+    """
+    return (-0.74846 - 0.05312 * np.log(omega_b / 0.02237)
+            + 0.21286 * np.log(omega_m / 0.143) + 0.50894 * np.log(h / 0.674))
+
+
+def _forward_and_jvp(emu, x, v):
+    """[poly] Network output y(x) and its directional derivative dy/dx . v.
+
+    Same forward pass as cosmopower's forward_pass_np (written with the same
+    floating-point expressions, so y is bit-identical), carrying the tangent
+    along: exact (analytic) derivative of the network, no step size.
+    x, v: (n_rows, n_params) in the network's own parameter order.
+    """
+    layer = (x - emu.parameters_mean_) / emu.parameters_std_
+    dlayer = v / emu.parameters_std_
+    for i in range(emu.n_layers - 1):
+        act = np.dot(layer, emu.W_[i]) + emu.b_[i]
+        dact = np.dot(dlayer, emu.W_[i])
+        alpha, beta = emu.alphas_[i], emu.betas_[i]
+        e = np.exp(-alpha * act)
+        layer = (beta + (1. - beta) * 1. / (1. + e)) * act
+        sig = 1. / (1. + e)
+        # d/da [(beta + (1-beta) sig(alpha a)) a]
+        dlayer = (beta + (1. - beta) * sig * (1. + alpha * act * (1. - sig))) * dact
+    out = np.dot(layer, emu.W_[-1]) + emu.b_[-1]
+    dout = np.dot(dlayer, emu.W_[-1])
+    if hasattr(emu, "pca_transform_matrix_"):  # cosmopower_PCAplusNN
+        y = np.dot(out * emu.pca_std_ + emu.pca_mean_,
+                   emu.pca_transform_matrix_) * emu.features_std_ + emu.features_mean_
+        dy = np.dot(dout * emu.pca_std_, emu.pca_transform_matrix_) * emu.features_std_
+    else:                                      # cosmopower_NN
+        y = out * emu.features_std_ + emu.features_mean_
+        dy = dout * emu.features_std_
+    return y, dy
+
 
 # ---------------------------------------------------------------------------
 # Exceptions (same names and hierarchy as classy)
@@ -202,6 +284,8 @@ class Class(object):
         self._cl = None             # dict of arrays on _ELL, set by compute()
         self._computed_pars = None  # snapshot of _pars used for _cl
         self._lmax = L_MAX_EMU
+        self._dcl = None            # [poly] dC_l/domega_m|theta_s on _ELL
+        self._dwm = None            # [poly] delta_omega_m(l) on _ELL
 
     # -- state ------------------------------------------------------------
     @property
@@ -228,6 +312,8 @@ class Class(object):
     def struct_cleanup(self):
         self._cl = None
         self._computed_pars = None
+        self._dcl = None
+        self._dwm = None
 
     # -- parameter parsing --------------------------------------------------
     def _get(self, name):
@@ -267,6 +353,25 @@ class Class(object):
                 "%g < l <= %d would belong to no bin" % (lmax, l_switch[-1], l_switch[-1], lmax))
         return lmax
 
+    def _poly(self):
+        """[poly] (coefs, l_c, l_norm, dlnh_dlnomega_m), or None if off."""
+        if not any(k in self._pars for k in _POLY_KEYS):
+            return None
+        coefs = [float(self._pars.get(k, 0.0)) for k in _POLY_KEYS]
+        while len(coefs) > 1 and coefs[-1] == 0.0:
+            coefs.pop()
+        if "l_c" not in self._pars:
+            raise CosmoSevereError(
+                "dwm_* coefficients given but no pivot l_c: delta_omega_m(l) = "
+                "dwm_a + dwm_b x + dwm_c x^2 with x = (l - l_c)/l_norm")
+        l_norm = float(self._pars.get("l_norm", _L_NORM_DEFAULT))
+        if l_norm <= 0:
+            raise CosmoSevereError("l_norm must be > 0 (got %g)" % l_norm)
+        # None -> fitted CLASS slope at the current point (per bin)
+        slope = self._pars.get("dlnh_dlnomega_m", None)
+        slope = None if slope is None else float(slope)
+        return coefs, float(self._pars["l_c"]), l_norm, slope
+
     # -- the computation ----------------------------------------------------
     def compute(self, level=None):
         # Nothing changed since the last compute -> keep the spectra.
@@ -297,22 +402,54 @@ class Class(object):
                     "%s = %s outside CosmoPower training range [%g, %g]"
                     % (name, np.array2string(v, precision=4), lo, hi))
 
+        # [poly] smooth delta omega_m(l) on, if any coefficient is given
+        poly = self._poly()
+        if poly is not None:
+            coefs, l_c, l_norm, slope = poly
+            x = (_ELL - l_c) / l_norm
+            dwm = np.zeros(_ELL.shape)
+            for k, c in enumerate(coefs):
+                dwm += c * x ** k
+            # tangent direction in emulator inputs: d omega_m = 1 at fixed
+            # theta_s -> d omega_cdm = 1, dH0 = 100 h/omega_m * dlnh/dlnomega_m
+            tangent = {name: np.zeros(n_bins) for name in batch}
+            tangent[CDM_PARAM_NAME] = np.ones(n_bins)
+            if slope is None:
+                slope = _dlnh_dlnomega_m(omega_b, omega_m, batch["H0"] / 100.0)
+            tangent["H0"] = batch["H0"] / omega_m * slope
+
         # [lcdm v1] only multipoles up to lmax are used / checked
         n_use = lmax - L_MIN_EMU + 1
-        cl = {}
+        cl, dcl = {}, {}
         for spec, (emu, is_log, form) in _EMU.items():
-            pred = emu.predictions_np(batch)          # shape (n_bins, n_ell)
+            if poly is None:
+                pred = emu.predictions_np(batch)      # shape (n_bins, n_ell)
+                dpred = None
+            else:                                     # [poly] output + derivative
+                pred, dpred = _forward_and_jvp(emu, emu.dict_to_ordered_arr_np(batch),
+                                               emu.dict_to_ordered_arr_np(tangent))
             if is_log:
                 pred = 10.0 ** pred
+                if dpred is not None:
+                    dpred = pred * np.log(10.0) * dpred   # [poly] d(10^y) = 10^y ln10 dy
             pred = pred * _TO_CL[form]                # [lcdm v1] -> plain C_l
             patched = np.full(_ELL.shape, np.nan)
             for i, m in enumerate(masks):
                 patched[m] = pred[i, m]
             if np.isnan(patched[:n_use]).any():  # every multipole must belong to exactly one bin
                 raise CosmoSevereError("l_switch bins leave multipoles uncovered: %s" % (l_switch,))
+            if dpred is not None:                     # [poly] add the linear response
+                dpred = dpred * _TO_CL[form]
+                dpatched = np.full(_ELL.shape, np.nan)
+                for i, m in enumerate(masks):
+                    dpatched[m] = dpred[i, m]
+                dcl[spec] = dpatched[:n_use]
+                patched = patched + dpatched * dwm
             cl[spec] = patched[:n_use]
 
         self._cl = cl
+        self._dcl = dcl if poly is not None else None
+        self._dwm = dwm[:n_use] if poly is not None else None
         self._lmax = lmax
         self._computed_pars = dict(self._pars)
 
@@ -336,6 +473,26 @@ class Class(object):
                 full[L_MIN_EMU:lmax + 1] = arr[:n]
             out[spec] = full
         out["tp"] = np.zeros(lmax + 1)  # see caveat 3: not emulated
+        return out
+
+    def dcl_domega_m(self, lmax=-1):
+        """[poly] (not in real classy) dC_l/domega_m at fixed theta_s used by
+        the polynomial model, same layout as lensed_cl (no 'tp'), plus
+        'delta_omega_m' = delta_omega_m(l). Needs a dwm_* key to be set."""
+        if self._cl is None:
+            self.compute()
+        if self._dcl is None:
+            raise CosmoSevereError("dcl_domega_m(): no dwm_* coefficient set")
+        lmax = self._lmax if lmax == -1 else int(lmax)
+        if lmax > self._lmax:
+            raise CosmoSevereError("Can only compute up to lmax=%d" % self._lmax)
+        out = {"ell": np.arange(lmax + 1)}
+        n = lmax - L_MIN_EMU + 1
+        for spec, arr in list(self._dcl.items()) + [("delta_omega_m", self._dwm)]:
+            full = np.zeros(lmax + 1)
+            if n > 0:
+                full[L_MIN_EMU:lmax + 1] = arr[:n]
+            out[spec] = full
         return out
 
     def raw_cl(self, lmax=-1, nofail=False):

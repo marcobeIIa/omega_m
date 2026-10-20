@@ -44,7 +44,6 @@
 
 \begin{document}
 
-\begin{document}
 
 % ======================================================================
 \begin{frame}{How much does $\partial C_\ell/\partial\om$ depend on the other parameters?}
@@ -71,6 +70,151 @@ $\tau$     & $0.6\%$  & $0.8\%$  & $0.9\%$ & $0.1\%$ & $\sim1.6\%$ \\
 \vspace{1.0em}
 \raggedright
 \takeaway{For a $1\sigma$ shift in any other parameter, $\partial C_\ell/\partial\om$ changes by at most $\sim3\%$ (from $h$). A $\pm3\%$ step is a much larger move than $1\sigma$ for $h$, $\omega_b$, $A_s$, $n_s$, and a smaller one for $\tau$, hence its larger $1\sigma$ value.}
+\end{frame}
+
+% ======================================================================
+\begin{frame}{Benchmark: CLASS vs CosmoPower, each fitted to both mocks}
+\centering
+\vspace{0.3em}\includegraphics[width=0.84\textwidth]{bench_mocks_1d}\\[-0.1em]
+{\raggedright\scriptsize \lcdm\ fit (one $\om$ bin) to two mocks of the same cosmology, made with CLASS and with CosmoPower. 8 chains $\times\,10^5$ steps per run.\par}
+\vspace{0.3em}
+\takeaway{Each code recovers its own mock ($|$pull$|\le0.12\sigma$). On either mock CosmoPower sits above CLASS by the same amount:
+$n_s$ $+0.8\sigma$, $\omega_b$ $+0.55\sigma$, $A_s$ $+0.35\sigma$, $\om$ $+0.2\sigma$; $h$, $\tau$ $\le0.15\sigma$. Errors identical.}
+\end{frame}
+
+% ======================================================================
+\begin{frame}{Benchmark: numbers, and comparison with the Fisher forecast}
+\centering
+\small
+\setlength{\tabcolsep}{5pt}
+\begin{tabular}{@{}lrrrcrr@{}}
+\toprule
+& \multicolumn{3}{c}{CosmoPower $-$ CLASS mean [$\sigma$]} & error ratio & \multicolumn{2}{c}{pull, code on its own mock [$\sigma$]} \\
+\cmidrule(lr){2-4}\cmidrule(lr){6-7}
+& CLASS mock & CP mock & Fisher forecast & CP/CLASS & CLASS & CosmoPower \\
+\midrule
+$\omega_b$ & $+0.56$ & $+0.55$ & $+0.55$ & 0.98 & $+0.03$ & $+0.03$ \\
+$h$ & $+0.15$ & $+0.12$ & $+0.13$ & 1.00 & $+0.04$ & $+0.04$ \\
+$\tau$ & $+0.14$ & $+0.13$ & $+0.15$ & 1.01 & $+0.12$ & $+0.11$ \\
+$n_s$ & $+0.83$ & $+0.81$ & $+0.83$ & 0.99 & $+0.03$ & $+0.03$ \\
+$\ln(10^{10}A_s)$ & $+0.34$ & $+0.35$ & $+0.37$ & 1.00 & $+0.12$ & $+0.10$ \\
+$\om$ & $+0.20$ & $+0.22$ & $+0.21$ & 1.00 & $-0.03$ & $-0.03$ \\
+\bottomrule
+\end{tabular}
+
+\vspace{0.8em}
+\raggedright
+\begin{itemize}\small
+  \item The shift does not depend on which code made the mock (agreement to $\le0.03\sigma$): it is a fixed offset between the two models.
+  \item The linear Fisher forecast (CosmoPower model on a CLASS mock, deck 1) predicted every shift to within $0.03\sigma$.
+  \item Self-fits are unbiased, so the MCMC machinery is fine; the offset is the emulator's accuracy at the damping tail.
+\end{itemize}
+{\scriptsize Pull = (mean $-$ input)/$\sigma$. Numbers in \texttt{data/bench\_mocks.json}, made by \texttt{scripts/fig\_bench\_mocks.py}.}
+\end{frame}
+
+% ======================================================================
+\begin{frame}{Benchmark with the newer emulator: smaller code bias}
+\centering
+\includegraphics[width=0.78\textwidth]{bench_mnu_cross}\\[-0.1em]
+{\raggedright\scriptsize Cross fits only: each code fitted to the other code's mock (\lcdm, one bin, same input cosmology).
+Top: CP\_paper networks (Spurio Mancini et al.\ 2022) vs CLASS with massless $\nu$. Bottom: CosmoPower \texttt{lcdm v1} networks,
+Bolliet et al.\ 2023 (arXiv:2303.01591), vs CLASS with the same physics ($1\times0.06$\,eV $\nu$, HMcode lensing).\par}
+\vspace{0.3em}
+\takeaway{Largest pull drops from $0.86\sigma$ ($n_s$) to $0.27\sigma$; $\omega_b$ $0.60\to0.16\sigma$, $A_s$ $0.46\to0.23\sigma$, $\om$ $0.25\to0.09\sigma$. Errors unchanged.}
+\end{frame}
+
+% ======================================================================
+\begin{frame}{The SPT emulator: what it is and how close to CLASS}
+\small
+CosmoPower \texttt{SPT\_high\_accuracy} \lcdm\ networks, Balkenhol et al.\ (SPT-3G 2018 TT/TE/EE), trained on high-precision CAMB.
+\begin{itemize}\small
+  \item Inputs $\omega_b,\omega_c,h,\tau,n_s,\ln(10^{10}A_s)$; lensed TT, TE, EE for $\ell=2$--$5000$, in $\mu$K$^2$. \textbf{No lensing ($\phi\phi$) network.}
+  \item Training box (inferred): $\omega_c\in[0.090,0.160]$, $h\in[0.55,0.80]$, $\tau\le0.090$ $\Rightarrow$ each $\om$ bin must stay in $\sim[0.112,0.182]$.
+  \item Physics: one massive $\nu$ (0.06\,eV) and HMcode lensing, as \texttt{lcdm v1}.
+\end{itemize}
+\vspace{0.3em}
+\centering\scriptsize
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{@{}lccc@{}}
+\toprule
+& CP\_paper & \texttt{lcdm v1} (Bolliet+23) & \texttt{SPT\_high\_accuracy} \\
+\midrule
+trained on & CAMB, massless $\nu$ & CLASS, $m_\nu$, HMcode & CAMB, $m_\nu$, HMcode \\
+$C_\ell$ vs matching CLASS ($\ell\le2508$) & TT $-0.7\%$, EE $-1\%$ (tail) & $\sim0.1\%$ TT, EE & 0.06\% TT, 0.08\% EE rms \\
+$\ell$ range & 2--2508 & 2--11\,000 & 2--5000 \\
+$\phi\phi$ & yes & yes & no \\
+parameter bias & $\le0.86\sigma$ (MCMC) & $\le0.27\sigma$ (MCMC) & $\le0.17\sigma$ (Fisher) \\
+\bottomrule
+\end{tabular}
+
+\vspace{0.4em}
+\raggedright
+{\scriptsize Bias: cross fits of the emulator model to a CLASS mock (TT, TE, EE + lensing, Planck-like noise). SPT: Fisher forecast, TT/TE/EE from SPT;
+with \texttt{lcdm v1}'s $\phi\phi$ added the forecast bias is $\le0.2\sigma$.}
+\end{frame}
+
+% ======================================================================
+\begin{frame}{Estimating $\partial C_\ell/\partial\om$ at fixed $\theta_s$}
+\small
+\begin{columns}[T]
+\column{0.55\textwidth}
+\textbf{CLASS, numerical} (benchmark): five-point stencil, $\epsilon=1.2\times10^{-3}$,
+\[ \frac{\partial C_\ell}{\partial\om}\simeq\frac{C_\ell(-2\epsilon)-8C_\ell(-\epsilon)+8C_\ell(\epsilon)-C_\ell(2\epsilon)}{12\,\epsilon}, \]
+with $h$ re-solved at every point so that CLASS's $100\theta_s = 1.0419693546$ (achieved to $4\times10^{-9}$).
+High precision: $\ell_{\max}=3500$, refined $\ell$ and $q$ sampling, tight tolerances (${\sim}9$ min/run).
+
+\vspace{0.5em}
+\textbf{Emulators, analytic}: exact network Jacobian (no step), along the fixed-$\theta_s$ direction
+\[ \frac{\partial C_\ell}{\partial\om}\Big|_{\theta_s}=\frac{\partial C_\ell}{\partial\omega_c}\Big|_h+\frac{\partial C_\ell}{\partial h}\Big|_{\omega_c}\frac{dh}{d\om}\Big|_{\theta_s},\quad \frac{dh}{d\om}\Big|_{\theta_s}=-3.524 \]
+(slope from CLASS; $d\ln h/d\ln\om=-0.748$).
+\column{0.43\textwidth}
+\includegraphics[width=\textwidth]{dcl_spt_an_vs_num}
+
+{\scriptsize Analytic $-$ numerical, same emulator, per unit $\om$, $/C_\ell$. With the exact slope: $\lesssim10^{-4}$ (Jacobians exact).
+The pipeline's fitted slope ($-0.74844$ vs $-0.74773$) alone moves the \texttt{lcdm v1} derivative by up to 0.8\% (TT), 1.4\% (EE).}
+\end{columns}
+\vspace{0.2em}
+{\scriptsize Fiducial: $\omega_b\,0.02237$, $\omega_c\,0.12$, $h\,0.674$, $\tau\,0.054$, $n_s\,0.965$, $\ln(10^{10}A_s)\,3.044$, $m_\nu$ 0.06\,eV, HMcode.}
+\end{frame}
+
+% ======================================================================
+\begin{frame}{$\partial C_\ell/\partial\om$: emulators vs CLASS}
+\begin{columns}[T]
+\column{0.62\textwidth}
+\includegraphics[width=\textwidth]{dcl_spt_errors}
+
+{\tiny Top: absolute ($\mu$K$^2$ per unit $\om$). Bottom: per unit $\om$, relative to $C_\ell$ (TE: $\sqrt{C^{TT}C^{EE}}$). Grey: CLASS numerical floor.}
+\column{0.37\textwidth}
+\scriptsize
+\setlength{\tabcolsep}{3pt}
+\begin{tabular}{@{}lccc@{}}
+\toprule
+$\sqrt{\chi^2}$, $1\sigma$ shift & TT & TE & EE \\
+\midrule
+template itself & 2.04 & 1.92 & 3.04 \\
+SPT $-$ CLASS & 0.071 & 0.026 & 0.063 \\
+\texttt{lcdm v1} $-$ CLASS & 0.080 & 0.030 & 0.067 \\
+CLASS floor & 0.005 & 0.006 & 0.009 \\
+\bottomrule
+\end{tabular}
+
+{\tiny $\delta\om=0.0012$; cosmic variance only, $f_{\rm sky}=0.57$, $30\le\ell\le2508$.}
+
+\vspace{0.6em}
+\takeaway{Both emulators reproduce the CLASS derivative to 1.5--4\%, SPT slightly better. The error grows with $\ell$ with the same shape for both: TT $-4\%$ of $C_\ell$ per unit $\om$ at $\ell=1500$--2000, $-7$ to $-8\%$ at 2500.}
+\end{columns}
+\end{frame}
+
+% ======================================================================
+\appendix
+\begin{frame}{Backup: full posteriors, CLASS mock}
+\centering
+\includegraphics[height=0.86\textheight]{bench_triangle_class_mock}
+\end{frame}
+
+\begin{frame}{Backup: full posteriors, CosmoPower mock}
+\centering
+\includegraphics[height=0.86\textheight]{bench_triangle_cosmopower_mock}
 \end{frame}
 
 \end{document}
