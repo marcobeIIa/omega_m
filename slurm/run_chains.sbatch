@@ -66,8 +66,18 @@ else
 fi
 
 # ---------- environment ----------
+# sbatch copies the submitting shell's environment into the job (that is how PIPELINE,
+# PARAM, ... get here), including any conda env that was active on the login node.
+# Clear that conda state first so the activation below starts clean.
+unset CONDA_SHLVL CONDA_PREFIX CONDA_DEFAULT_ENV CONDA_PROMPT_MODIFIER CONDA_EXE CONDA_PYTHON_EXE _CE_M _CE_CONDA
+for i in 1 2 3 4 5 6 7 8 9; do unset CONDA_PREFIX_$i; done
+PATH=$(printf '%s' "$PATH" | tr ':' '\n' | grep -v "/miniforge3/" | paste -sd: -)
 source "$HOME/miniforge3/etc/profile.d/conda.sh"
 conda activate "$ENV" || { echo "ERROR: could not activate conda env $ENV"; exit 1; }
+# Use the env's own python explicitly; refuse with a clear message if it has none.
+PY=$CONDA_PREFIX/bin/python
+[[ -x "$PY" ]] || { echo "ERROR: conda env '$ENV' ($CONDA_PREFIX) has no bin/python"; \
+                    conda env list; exit 1; }
 
 # Use only the cores Slurm gave us (no oversubscribing shared nodes)
 NCPU=${SLURM_CPUS_PER_TASK:-1}
@@ -106,11 +116,12 @@ fi
 
 # ---------- run ----------
 echo "Host $(hostname) | env $ENV | $NCPU cpus | chain $CHAIN | $NSTEPS steps"
+echo "python $PY ($("$PY" --version 2>&1))"
 echo "param  $PARAM_PATH"
 echo "model  $MODEL_PATH"
 echo "output $OUT"
 
 cd "$ROOT/montepython_fake"
-python montepython/MontePython.py run \
+"$PY" montepython/MontePython.py run \
     -p "$TMP_PARAM" -o "$OUT" -N "$NSTEPS" \
     --conf "$CONF_PATH" --chain-number "$CHAIN" "${COV_ARG[@]}"

@@ -1,0 +1,57 @@
+#----- binned omega_m, 10 bins (optimal edges) -- pipeline: with_cp_lcdm -----
+# Spectra: CosmoPower lcdm v1 emulators (Bolliet et al. 2023), stand-in in
+# with_cp_lcdm/class/python/classy.py. omega_m INCLUDES one 0.06 eV neutrino.
+# Priors on omega_b and omega_m kept inside the emulator training box.
+# Same as with_cp_lcdm/one_bin.param apart from the BINS block.
+# Bin edges from models/optimal_bins.py --n_bins 10 (exact optimum): they minimise
+# the largest Fisher sigma(omega_m,i - omega_m,i+1) of fake_planck_realistic at
+# omega_m = 0.15 (forecast largest sigma(Delta) = 0.00113).
+# Fiducial file: set by slurm/run_chains.sbatch (MODEL=..., MODEL_FROM=...).
+
+# EXPERIMENTS
+# Mock CMB likelihood: TT, TE, EE + lensing extraction, Planck-like noise.
+data.experiments=['fake_planck_realistic']
+
+# The emulator stops at l = 2508; CLASS is run to the same l_max.
+fake_planck_realistic.l_max = 2508
+
+# COSMOLOGICAL PARAMETERS
+# [mean, min, max, proposal sigma, scale, role]; the value passed to classy is
+# value*scale (omega_b is sampled as 100*omega_b).
+data.parameters['omega_b']      = [ 2.24,  1.93, 2.53, 0.02,  0.01, 'cosmo']
+data.parameters['h']            = [ 0.674, 0.6,  0.75, 0.01,  1,    'cosmo']
+data.parameters['tau_reio']     = [ 0.054, 0.02, 0.10, 0.005, 1,    'cosmo']
+data.parameters['n_s']          = [ 0.965, 0.92, 1.00, 0.004, 1,    'cosmo']
+data.parameters['ln10^{10}A_s'] = [ 3.044, 2.9,  3.2,  0.015, 1,    'cosmo']
+
+# BINS: bin 0 = [2, l_switch1], bin i = (l_switch{i}, l_switch{i+1}].
+# l_switch is fixed (sigma = 0) and passed to classy like any other parameter.
+# proposal sigma of omega_m{i} = its Fisher sigma.
+data.parameters['l_switch1'] = [511, 511, 511, 0, 1, 'cosmo']
+data.parameters['l_switch2'] = [658, 658, 658, 0, 1, 'cosmo']
+data.parameters['l_switch3'] = [836, 836, 836, 0, 1, 'cosmo']
+data.parameters['l_switch4'] = [909, 909, 909, 0, 1, 'cosmo']
+data.parameters['l_switch5'] = [956, 956, 956, 0, 1, 'cosmo']
+data.parameters['l_switch6'] = [1142, 1142, 1142, 0, 1, 'cosmo']
+data.parameters['l_switch7'] = [1220, 1220, 1220, 0, 1, 'cosmo']
+data.parameters['l_switch8'] = [1447, 1447, 1447, 0, 1, 'cosmo']
+data.parameters['l_switch9'] = [1534, 1534, 1534, 0, 1, 'cosmo']
+data.parameters['l_switch10'] = [2508, 2508, 2508, 0, 1, 'cosmo']
+data.parameters['omega_m0']  = [0.15, 0.11, 0.21, 0.0013, 1, 'cosmo']
+data.parameters['omega_m1']  = [0.15, 0.11, 0.21, 0.0014, 1, 'cosmo']
+data.parameters['omega_m2']  = [0.15, 0.11, 0.21, 0.0015, 1, 'cosmo']
+data.parameters['omega_m3']  = [0.15, 0.11, 0.21, 0.0016, 1, 'cosmo']
+data.parameters['omega_m4']  = [0.15, 0.11, 0.21, 0.0016, 1, 'cosmo']
+data.parameters['omega_m5']  = [0.15, 0.11, 0.21, 0.0016, 1, 'cosmo']
+data.parameters['omega_m6']  = [0.15, 0.11, 0.21, 0.0015, 1, 'cosmo']
+data.parameters['omega_m7']  = [0.15, 0.11, 0.21, 0.0016, 1, 'cosmo']
+data.parameters['omega_m8']  = [0.15, 0.11, 0.21, 0.0016, 1, 'cosmo']
+data.parameters['omega_m9']  = [0.15, 0.11, 0.21, 0.0016, 1, 'cosmo']
+
+# DERIVED (only plain functions of the inputs exist in the binned model)
+data.parameters['H0'] = [0, -1, -1, 0, 1, 'derived']
+
+# OTHER MONTEPYTHON SETTINGS
+data.cosmo_arguments = {}
+data.N = 10
+data.write_step = 5

@@ -154,6 +154,41 @@ with \texttt{lcdm v1}'s $\phi\phi$ added the forecast bias is $\le0.2\sigma$.}
 \end{frame}
 
 % ======================================================================
+\begin{frame}{The three emulators: inputs and training ranges}
+\centering\scriptsize
+\setlength{\tabcolsep}{3pt}
+\renewcommand{\arraystretch}{1.12}
+\begin{tabular}{@{}lcccc@{}}
+\toprule
+& CP\_paper & \texttt{lcdm v1} & \texttt{SPT\_high\_accuracy} & our priors \\
+& Spurio Mancini+22 & Bolliet+23 & Balkenhol+ & (\texttt{with\_cp\_lcdm}) \\
+\midrule
+$\omega_b$ & $[0.005,\,0.040]$ & $[0.0193,\,0.0253]$ & $[0.018,\,0.026]$ & $[0.0193,\,0.0253]$ \\
+$\omega_c$ & $[0.001,\,0.99]$ & $[0.0799,\,0.200]$ & $[0.090,\,0.160]$ & via $\om$ \\
+$h$ & $[0.20,\,1.00]$ & $H_0\in[40.05,\,100]$ & $[0.55,\,0.80]$ & $[0.60,\,0.75]$ \\
+$\tau$ & $[0.01,\,0.80]$ & $[0.020,\,0.120]$ & $[0.018,\,0.090]$ & $[0.02,\,0.10]$ \\
+$n_s$ & $[0.70,\,1.30]$ & $[0.881,\,1.049]$ & $[0.868,\,1.130]$ & $[0.92,\,1.00]$ \\
+$\ln(10^{10}A_s)$ & $[1.61,\,5.00]$ & $[2.50,\,3.50]$ & $[2.70,\,3.20]$ & $[2.90,\,3.20]$ \\
+\addlinespace
+$\Rightarrow\om$ per bin & no real limit & $\approx[0.103,\,0.223]$ & $\approx[0.112,\,0.182]$ & $[0.11,\,0.21]$ \\
+\midrule
+fixed physics & massless $\nu^\ast$, lin. lensing$^\ast$ & $1\times0.06$\,eV $\nu$, HMcode & $1\times0.06$\,eV $\nu$, HMcode & \\
+training code & CAMB & CLASS & CAMB (high accuracy) & \\
+outputs & TT, TE, EE, $\phi\phi$ & TT, TE, EE, $\phi\phi$ & TT, TE, EE & \\
+$\ell$ range & 2--2508 & 2--11\,000 & 2--5000 & \\
+input names & \texttt{omega\_b, omega\_cdm, h,} & \texttt{omega\_b, omega\_cdm, H0,} & \texttt{ombh2, omch2, h,} & \\
+            & \texttt{tau\_reio, n\_s, ln10\^{}\{10\}A\_s} & \texttt{tau\_reio, n\_s, ln10\^{}\{10\}A\_s} & \texttt{tau, ns, logA} & \\
+\bottomrule
+\end{tabular}
+
+\vspace{0.5em}
+\raggedright
+{\tiny Same six \lcdm\ parameters in all three; none has $m_\nu$, $N_{\rm eff}$ or $Y_{\rm He}$ as an input (fixed in training). \texttt{lcdm v1} $\phi\phi$ has no $\tau$ input.
+CP\_paper ranges as coded in our stand-in (full training box of the paper); \texttt{lcdm v1} and SPT ranges inferred from the stored parameter mean/std, assuming uniform sampling.
+$^\ast$Not stated in the paper; inferred from our comparison with CAMB/CLASS (best match). With SPT, our $\tau$ prior (to 0.10) and $\om$ prior (to 0.21) would need tightening.\par}
+\end{frame}
+
+% ======================================================================
 \begin{frame}{Estimating $\partial C_\ell/\partial\om$ at fixed $\theta_s$}
 \small
 \begin{columns}[T]
@@ -203,6 +238,101 @@ CLASS floor & 0.005 & 0.006 & 0.009 \\
 \vspace{0.6em}
 \takeaway{Both emulators reproduce the CLASS derivative to 1.5--4\%, SPT slightly better. The error grows with $\ell$ with the same shape for both: TT $-4\%$ of $C_\ell$ per unit $\om$ at $\ell=1500$--2000, $-7$ to $-8\%$ at 2500.}
 \end{columns}
+\end{frame}
+
+% ======================================================================
+% Smooth omega_m(l): parametrisation, runs, results (figure/numbers: scripts/fig_poly.py -> figs/poly_omega_ell, data/poly_runs.json)
+% ======================================================================
+\begin{frame}{A smooth $\om(\ell)$: the parametrisation}
+\small
+Instead of $\om$ bins with sharp edges, a smooth $\ell$-dependence added to the spectra in linear response:
+\[ C_\ell = C_\ell^{\Lambda{\rm CDM}}(\omega_b,h,\tau,n_s,A_s,\omega_{m0}) \;+\; \frac{\partial C_\ell}{\partial\om}\Big|_{\theta_s,\,\omega_b,\,\tau,\,n_s,\,A_s}\,\delta\om(\ell),
+\qquad \delta\om(\ell)=a+b\,x+c\,x^2,\quad x=\frac{\ell-\ell_c}{1000}. \]
+\vspace{-0.6em}
+\begin{itemize}\small
+  \item Same $\delta\om(\ell)$ on TT, TE, EE, $\phi\phi$, each with its own derivative. The derivative is the exact network Jacobian (\texttt{lcdm v1}) at the \emph{current} point,
+        along the fixed-$\theta_s$ direction: $\partial_{\omega_c}C_\ell|_h+\partial_h C_\ell\,(dh/d\om)_{\theta_s}$, with $d\ln h/d\ln\om|_{\theta_s}$ from a fit to CLASS (good to 0.3\% over the prior box).
+  \item $a$ is degenerate with $\omega_{m0}$ (plus the matching $h$ shift): $a\equiv0$, so $\omega_{m0}=\om(\ell_c)$ and $b$, $c$ carry all the $\ell$-dependence.
+  \item $\ell_c=400$: where $\omega_{m0}$ and $b$ decorrelate (Fisher). Moving $\ell_c$ only reparametrises the same model.
+  \item Fisher: $\sigma(b)=0.0041$, $\sigma(c)=0.0053$, $\sigma(\omega_{m0})=0.0013$. Priors $b,c\in[-0.05,0.05]$ (flat).
+  \item $\sigma[\om(\ell)]$: $0.0014$ at $\ell\simeq200$--$400$, $0.0027$ at 1200, $0.005$ at 1600, $0.018$ at 2500: the data constrain the curve only below $\ell\sim1500$.
+\end{itemize}
+\vspace{0.2em}
+\takeaway{Linear response is accurate near $b=c=0$ (error $\sqrt{\chi^2}=0.01$ for a $1\sigma$ shift, $0.1$ for $3\sigma$), i.e.\ for a null test.
+Far out in the high-$\ell$ tails it is a phenomenological model, not ``$\om$ at that $\ell$''.}
+\end{frame}
+
+% ======================================================================
+\begin{frame}{Mock vs model: the runs}
+\small
+Two mocks, each fitted with fixed $\om$ (\lcdm) and with $\om(\ell)$. Sampler: CosmoPower \texttt{lcdm v1}; likelihood \texttt{fake\_planck\_realistic}
+(TT, TE, EE + lensing, Planck-like noise, $\ell\le2508$, noiseless mocks). 8 chains $\times\,10^5$ steps, burn-in 0.3.
+
+\vspace{0.5em}
+\centering
+\setlength{\tabcolsep}{6pt}
+\begin{tabular}{@{}llcccc@{}}
+\toprule
+mock & model & $\chi^2_{\min}$ & acceptance & max $R-1$ & extra params \\
+\midrule
+CLASS \lcdm & fixed $\om$ (\texttt{one\_bin}) & 0.11 & 0.28 & 0.0005 & -- \\
+            & $\om(\ell)$ (\texttt{poly})      & 0.08 & 0.26 & 0.0011 & $b$, $c$ \\
+\addlinespace
+mAxiCLASS EDE & fixed $\om$ (\texttt{one\_bin}) & 5.38 & 0.27 & 0.0003 & -- \\
+              & $\om(\ell)$ (\texttt{poly})      & 5.20 & 0.25 & 0.0004 & $b$, $c$ \\
+\bottomrule
+\end{tabular}
+
+\vspace{0.6em}
+\raggedright
+\begin{itemize}\small
+  \item \textbf{CLASS \lcdm\ mock}: $\omega_b\,0.0224$, $h\,0.674$, $\tau\,0.054$, $n_s\,0.965$, $\ln(10^{10}A_s)\,3.044$, $\om\,0.15$; $1\times0.06$\,eV $\nu$, HMcode.
+  \item \textbf{mAxiCLASS mock}: 2-axion EDE ($n=3$), Bella, Poulin, Vagnozzi, Knox 2026 PDH0 posterior means: $f_{\rm EDE}=0.085,\,0.073$ at $\log_{10}a_c=-3.44,\,-4.00$;
+        $H_0=72.6$, $\om=0.1563$, $\omega_b\,0.02267$, $n_s\,0.988$, $\tau\,0.060$, $\ln(10^{10}A_s)\,3.067$; same $\nu$ and lensing.
+\end{itemize}
+{\scriptsize One \texttt{one\_bin} chain on the \lcdm\ mock stopped at $7.4\times10^4$ steps. Numbers in \texttt{data/poly\_runs.json}.\par}
+\end{frame}
+
+% ======================================================================
+\begin{frame}{Can $\om(\ell)$ see the EDE in the mock?}
+\centering
+\includegraphics[width=\textwidth]{poly_omega_ell}\\[-0.2em]
+{\raggedright\scriptsize Bands: 68/95\%. Orange: fixed $\om$ (flat). Blue: $\om(\ell)=\omega_{m0}+b\,x+c\,x^2$, $x=(\ell-400)/1000$. Dashed: the mock's $\om$.\par}
+\vspace{0.2em}
+\takeaway{\textbf{No.} On the EDE mock $b=0.0023\pm0.0039$, $c=-0.0009\pm0.0050$ (joint $\chi^2=0.44$ vs 0, 2 dof); $\Delta\chi^2_{\min}=0.18$.
+The null test behaves the same ($b,c$ within $0.1\sigma$, $\Delta\chi^2_{\min}=0.03$). The $\om(\ell)$ curve stays flat; both fits sit 12--13$\sigma$ below the mock's $\om$.}
+\end{frame}
+
+% ======================================================================
+\begin{frame}{EDE mock: \lcdm\ absorbs the EDE into parameter shifts}
+\centering
+\small
+\setlength{\tabcolsep}{6pt}
+\begin{tabular}{@{}lrrrrr@{}}
+\toprule
+& mock & \multicolumn{2}{c}{fixed $\om$} & \multicolumn{2}{c}{$\om(\ell)$} \\
+\cmidrule(lr){3-4}\cmidrule(lr){5-6}
+& & mean $\pm\,\sigma$ & pull & mean $\pm\,\sigma$ & pull \\
+\midrule
+$\omega_b$        & 0.02267 & $0.02221\pm0.00015$ & $-3.1$  & $0.02216\pm0.00018$ & $-2.8$ \\
+$h$               & 0.7265  & $0.6338\pm0.0054$   & $-17.1$ & $0.6329\pm0.0061$   & $-15.2$ \\
+$\tau$            & 0.060   & $0.0596\pm0.0045$   & $-0.1$  & $0.0597\pm0.0045$   & $-0.1$ \\
+$n_s$             & 0.988   & $0.9682\pm0.0036$   & $-5.5$  & $0.9692\pm0.0044$   & $-4.2$ \\
+$\ln(10^{10}A_s)$ & 3.067   & $3.0501\pm0.0087$   & $-2.0$  & $3.0507\pm0.0087$   & $-1.9$ \\
+$\omega_{m0}$     & 0.1563  & $0.1415\pm0.0011$   & $-12.9$ & $0.1416\pm0.0013$   & $-11.8$ \\
+$b$               & --      & --                  &         & $0.0023\pm0.0039$   & $+0.6$ \\
+$c$               & --      & --                  &         & $-0.0009\pm0.0050$  & $-0.2$ \\
+\midrule
+$\chi^2_{\min}$   & 0       & 5.38                &         & 5.20                &        \\
+\bottomrule
+\end{tabular}
+
+\vspace{0.6em}
+\raggedright
+{\scriptsize Pull = (mean $-$ mock)/$\sigma$; for $b$, $c$ vs 0. The mock's ``$\om$'' is the total matter density of the EDE cosmology: a \lcdm\ fit is not expected to recover it.\par}
+\vspace{0.3em}
+\takeaway{At Planck-like noise this EDE is almost a \lcdm\ cosmology with different parameters ($H_0$ 72.6 $\to$ 63.4, $\om$ 0.156 $\to$ 0.142, $n_s$ 0.988 $\to$ 0.968).
+The residual it leaves ($\chi^2_{\min}=5.4$) does not have the shape of a smooth $\delta\om(\ell)$: $b$, $c$ remove only 0.18 of it, and the other parameters barely move.}
 \end{frame}
 
 % ======================================================================

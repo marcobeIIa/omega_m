@@ -286,6 +286,13 @@ class Class(object):
                 c.set(dict(base, omega_cdm=omega_m[i] - omega_b - OMEGA_NU))
                 with _CStdoutSilenced():                              # [maxi]
                     c.compute(level) if level is not None else c.compute()
+                # [maxi] MP-branch of mAxiCLASS never reads 'h' (only H0) and silently
+                # falls back to h = 0.6781: refuse such a build instead of using it.
+                if abs(c.h() / base["h"] - 1) > 1e-10:
+                    raise CosmoSevereError(
+                        "mAxiCLASS ignored h = %.6g (computed with h = %.6g): wrong branch? "
+                        "use mAxiCLASShoot (see with_maxiclass/check_install.py)"
+                        % (base["h"], c.h()))
                 self._check_shooting(c)                               # [maxi]
                 done[key] = c.lensed_cl(lmax)
             res = done[key]
