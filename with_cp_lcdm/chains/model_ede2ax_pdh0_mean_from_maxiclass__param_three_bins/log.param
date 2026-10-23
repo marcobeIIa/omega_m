@@ -1,4 +1,4 @@
-#-----CLASS shim (branch: 3.6, hash: 3145c4ba952223af9ebbc71658e3e1962911876d)-----
+#-----CLASS shim (branch: 3.6, hash: 7408d4bc7589fad22b7c2044c2d626d42917e111)-----
 
 #----- binned omega_m, 2 bins, fixed binning -- pipeline: with_cosmopower -----
 # Spectra: CosmoPower emulator stand-in (with_cosmopower/class/python/classy.py)

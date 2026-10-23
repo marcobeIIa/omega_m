@@ -1,0 +1,22 @@
+{
+    "files.associations": {
+        "parallel.h": "c",
+        "common.h": "c",
+        "__bit_reference": "c",
+        "__node_handle": "c",
+        "bitset": "c",
+        "chrono": "c",
+        "deque": "c",
+        "__memory": "c",
+        "filesystem": "c",
+        "limits": "c",
+        "optional": "c",
+        "random": "c",
+        "ratio": "c",
+        "system_error": "c",
+        "tuple": "c",
+        "type_traits": "c",
+        "vector": "c"
+    },
+    "terminal.integrated.fontFamily": "MesloLGS NF"
+}

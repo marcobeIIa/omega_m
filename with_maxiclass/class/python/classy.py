@@ -101,7 +101,7 @@ CosmoComputationError = _real.CosmoComputationError
 
 L_MIN = 2
 
-_OUR_KEYS = {"omega_b", "h", "tau_reio", "n_s", "ln10^{10}A_s", "A_s"}
+_OUR_KEYS = {"omega_b", "h", "H0", "tau_reio", "n_s", "ln10^{10}A_s", "A_s"}
 
 # physics of the lcdm v1 emulators / with_class_mnu (overridable)
 _PHYSICS = {"N_ur": 2.0328, "N_ncdm": 1, "m_ncdm": 0.06, "non_linear": "hmcode"}
@@ -254,7 +254,7 @@ class Class(object):
                      if k not in _OUR_KEYS and not _is_bin_key(k)})
         base.update({
             "omega_b": omega_b,
-            "h": self._get("h"),
+            "H0": 100.0 * self._get("h"),   # [maxi] H0, not h: read by every mAxiCLASS branch
             "tau_reio": self._get("tau_reio"),
             "n_s": self._get("n_s"),
             "ln10^{10}A_s": self._ln10As(),
@@ -286,13 +286,11 @@ class Class(object):
                 c.set(dict(base, omega_cdm=omega_m[i] - omega_b - OMEGA_NU))
                 with _CStdoutSilenced():                              # [maxi]
                     c.compute(level) if level is not None else c.compute()
-                # [maxi] MP-branch of mAxiCLASS never reads 'h' (only H0) and silently
-                # falls back to h = 0.6781: refuse such a build instead of using it.
-                if abs(c.h() / base["h"] - 1) > 1e-10:
+                # [maxi] safety net: the cosmology CLASS computed must have the requested h
+                if abs(c.h() / self._get("h") - 1) > 1e-10:
                     raise CosmoSevereError(
-                        "mAxiCLASS ignored h = %.6g (computed with h = %.6g): wrong branch? "
-                        "use mAxiCLASShoot (see with_maxiclass/check_install.py)"
-                        % (base["h"], c.h()))
+                        "mAxiCLASS computed h = %.6g instead of the requested %.6g"
+                        % (c.h(), self._get("h")))
                 self._check_shooting(c)                               # [maxi]
                 done[key] = c.lensed_cl(lmax)
             res = done[key]

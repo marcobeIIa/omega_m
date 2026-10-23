@@ -1,0 +1,79 @@
+#-----CLASS shim (branch: 3.6, hash: 7408d4bc7589fad22b7c2044c2d626d42917e111)-----
+
+#----- smooth delta omega_m(l), quadratic, linear response -- pipeline: with_cp_lcdm -----
+# Spectra: CosmoPower lcdm v1 emulators (Bolliet et al. 2023), stand-in in
+# with_cp_lcdm/class/python/classy.py ([poly] part). omega_m INCLUDES one
+# 0.06 eV neutrino. Same likelihood/priors as one_bin.param, plus
+#   C_l = C_l(LCDM at omega_m0) + dC_l/domega_m|_theta_s * delta_omega_m(l),
+#   delta_omega_m(l) = dwm_b x + dwm_c x^2,   x = (l - l_c)/1000.
+# dwm_a (constant term) is left out = 0: it is degenerate with omega_m0, so
+# omega_m0 = omega_m(l_c). l_c = 400 is the pivot where omega_m0 and dwm_b are
+# ~uncorrelated (Fisher); moving l_c only reparametrises the same model.
+# Fisher sigmas (l_c 400): dwm_b 0.0041, dwm_c 0.0053, omega_m0 0.0013.
+# Starting covmat: models/poly_fisher.covmat (-c).
+
+# EXPERIMENTS
+# Mock CMB likelihood: TT, TE, EE + lensing extraction, Planck-like noise.
+data.experiments=['fake_planck_realistic']
+
+# The mock stops at l = 2508.
+fake_planck_realistic.l_max = 2508
+
+# COSMOLOGICAL PARAMETERS
+# [mean, min, max, proposal sigma, scale, role]; the value passed to classy is
+# value*scale (omega_b is sampled as 100*omega_b).
+data.parameters['omega_b']      = [ 2.24,  1.93, 2.53, 0.02,  0.01, 'cosmo']
+data.parameters['h']            = [ 0.674, 0.6,  0.75, 0.01,  1,    'cosmo']
+data.parameters['tau_reio']     = [ 0.054, 0.02, 0.10, 0.005, 1,    'cosmo']
+data.parameters['n_s']          = [ 0.965, 0.92, 1.00, 0.004, 1,    'cosmo']
+data.parameters['ln10^{10}A_s'] = [ 3.044, 2.9,  3.2,  0.015, 1,    'cosmo']
+
+# One l-bin: the base spectrum is plain LCDM at omega_m0.
+data.parameters['l_switch1'] = [2508, 2508, 2508, 0, 1, 'cosmo']
+data.parameters['omega_m0']  = [0.15, 0.11, 0.21, 0.0013, 1, 'cosmo']
+
+# delta omega_m(l) coefficients (fixed ones have sigma = 0 and are passed to
+# classy like l_switch). Flat priors ~ +-10 Fisher sigma.
+data.parameters['dwm_b'] = [0, -0.05, 0.05, 0.004, 1, 'cosmo']
+data.parameters['dwm_c'] = [0, -0.05, 0.05, 0.005, 1, 'cosmo']
+data.parameters['l_c']   = [400, 400, 400, 0, 1, 'cosmo']
+# data.parameters['l_norm'] = [1000, 1000, 1000, 0, 1, 'cosmo']   # default 1000
+
+# DERIVED (only plain functions of the inputs exist in the binned model)
+data.parameters['H0'] = [0, -1, -1, 0, 1, 'derived']
+
+# OTHER MONTEPYTHON SETTINGS
+data.cosmo_arguments = {}
+data.N = 10
+data.write_step = 5
+
+# Fiducial set by run_chains.sbatch
+fake_planck_realistic.fiducial_file = '/home/mcbella/omega_m/with_maxiclass/model/ede1ax_f012_z1e4.dat'
+
+
+#-----Likelihood-fake_planck_realistic-----
+fake_planck_realistic.data_directory = '/home/mcbella/omega_m/montepython_fake/data'
+fake_planck_realistic.fiducial_file = '/home/mcbella/omega_m/with_maxiclass/model/ede1ax_f012_z1e4.dat'
+fake_planck_realistic.l_min = 2
+fake_planck_realistic.l_max = 2508
+fake_planck_realistic.f_sky = 0.57
+fake_planck_realistic.Bmodes = False
+fake_planck_realistic.delensing = False
+fake_planck_realistic.noise_from_file = True
+fake_planck_realistic.noise_file = 'noise_fake_planck_realistic_two.dat'
+fake_planck_realistic.LensingExtraction = True
+fake_planck_realistic.neglect_TD = True
+fake_planck_realistic.unlensed_clTTTEEE = False
+fake_planck_realistic.ExcludeTTTEEE = False
+
+
+#-----------Cosmological-arguments---------
+data.cosmo_arguments.update({'lensing': 'yes', 'output': 'tCl lCl pCl', 'l_max_scalars': 2508})
+
+
+#--------Default-Configuration------
+data.path['root']	= '/home/mcbella/omega_m/montepython_fake'
+data.path['MontePython']	= '/home/mcbella/omega_m/montepython_fake/montepython'
+data.path['data']	= '/home/mcbella/omega_m/montepython_fake/data'
+data.path['cosmo']	= '/home/mcbella/omega_m/with_cp_lcdm/class'
+data.path['clik']	= '/home/mcbella/omega_m/planck/code/plc_3.0/plc-3.01'

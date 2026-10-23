@@ -1,0 +1,97 @@
+% omega_m binning -- status slides (October 2026)
+% Compile: pdflatex omega_m_binning.tex (twice). Figures in figs/ (PDF), made by the scripts in scripts/.
+\documentclass[aspectratio=169,10pt]{beamer}
+\usepackage[T1]{fontenc}
+\IfFileExists{lmodern.sty}{\usepackage{lmodern}}{}
+\usepackage{amsmath,amssymb}
+\usepackage{booktabs}
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage{array}
+\graphicspath{{figs/}}
+
+% ---------------------------------------------------------------- look
+\definecolor{ink}{HTML}{1A1A19}
+\definecolor{muted}{HTML}{6B6A63}
+\definecolor{accent}{HTML}{2A78D6}
+\definecolor{one}{HTML}{EB6834}
+\definecolor{two}{HTML}{2A78D6}
+\definecolor{three}{HTML}{1BAF7A}
+\definecolor{wash}{HTML}{EEF4FC}
+\setbeamercolor{normal text}{fg=ink}
+\setbeamercolor{frametitle}{fg=ink}
+\setbeamercolor{title}{fg=ink}
+\setbeamercolor{structure}{fg=accent}
+\setbeamercolor{itemize item}{fg=accent}
+\setbeamercolor{itemize subitem}{fg=muted}
+\setbeamerfont{frametitle}{size=\large,series=\bfseries}
+\setbeamertemplate{navigation symbols}{}
+\setbeamertemplate{itemize items}[circle]
+\setbeamertemplate{frametitle}{%
+  \vspace*{0.35em}\insertframetitle\par\vspace{-0.2em}%
+  {\color{accent}\rule{\textwidth}{0.6pt}}\vspace{-0.6em}}
+\setbeamertemplate{footline}{%
+  \hspace*{0.6em}{\color{muted}\scriptsize $\omega_m$ binning --- third set, October 2026}\hfill
+  {\color{muted}\scriptsize\insertframenumber}\hspace*{0.8em}\vspace*{0.45em}}
+\setlength{\leftmargini}{1.1em}
+\setlength{\leftmarginii}{1.0em}
+\newcommand{\takeaway}[1]{%
+  \begin{beamercolorbox}[wd=\textwidth,sep=0.45em]{}\colorbox{wash}{\parbox{\dimexpr\textwidth-2\fboxsep}{\small #1}}\end{beamercolorbox}}
+\newcommand{\om}{\omega_m}
+\newcommand{\lcdm}{$\Lambda$CDM}
+\newcommand{\sm}{\scriptsize}
+
+
+\begin{document}
+
+% ======================================================================
+\begin{frame}{2-axion EDE mock: binned $\om$ with 1, 5 and 10 bins}
+\centering
+\includegraphics[width=0.76\textwidth]{ede2_bins}\\[-0.2em]
+\raggedright
+\begin{itemize}\scriptsize
+  \item Mock: mAxiCLASS 2-axion EDE ($n=3$), Bella, Poulin, Vagnozzi, Knox 2026 PDH0 means: $f_{\rm EDE}=0.085,\,0.073$ at $\log_{10}a_c=-3.44,\,-4.00$; $H_0=72.6$, $\om=0.1563$. Fitted with \texttt{lcdm v1} (CosmoPower).
+  \item All bins agree: $\om\approx0.1416$--$0.1424$ ($\sigma=0.0012$--$0.0016$ per bin); test ``all bins equal'' $\chi^2=0.36$ (4 dof) and $1.75$ (9 dof).
+  \item \lcdm\ absorbs the EDE into parameter shifts (1 bin, pulls vs mock): $\om$ $-12.7\sigma$, $h$ $0.679$ ($-8.4\sigma$), $n_s$ $-5.5\sigma$, $\omega_b$ $-3.1\sigma$; $\chi^2_{\min}=5.35$.
+\end{itemize}
+{\tiny Runs of 2026-10-22 (after the mock fix). 8 chains $\times10^5$ steps; acceptance 0.25 / 0.067 / 0.045, max $R-1$ 0.0005 / 0.009 / 0.013. At 5--7\% acceptance the chains' lowest $\chi^2$ (5.83, 6.35) is not the true minimum.\par}
+\end{frame}
+
+% ======================================================================
+\begin{frame}{2-axion EDE mock: smooth $\om(\ell)$, prior vs posterior}
+\centering
+\includegraphics[width=0.92\textwidth]{ede2_poly_prior}\\[-0.2em]
+\raggedright
+\begin{itemize}\scriptsize
+  \item $\om(\ell)=\omega_{m0}+b\,x+c\,x^2$, $x=(\ell-400)/1000$; flat priors $\omega_{m0}\in[0.11,0.21]$, $b,c\in[-0.05,0.05]$. The induced prior on $\om(\ell)$ is not flat and widens away from $\ell_c$.
+  \item Data-dominated everywhere: posterior 68\% half-width $0.0013$ ($\ell=400$), $0.002$ ($\ell=1000$), $0.004$ (1500), $0.018$ (2500), vs prior $0.034$, $0.037$, $0.057$, $0.156$.
+  \item No $\ell$-dependence: $b=0.0024\pm0.0040$, $c=-0.0008\pm0.0052$; $(b,c)=0$ at $\chi^2=0.47$ ($0.3\sigma$); $\Delta\chi^2_{\min}=0.40$ for 2 extra parameters.
+\end{itemize}
+\end{frame}
+
+% ======================================================================
+\begin{frame}{1-axion EDE mock (untuned): fixed $\om$ vs $\om(\ell)$}
+\centering
+\includegraphics[width=0.74\textwidth]{ede1_poly}\\[-0.2em]
+\raggedright
+\begin{itemize}\scriptsize
+  \item Mock: the fiducial \lcdm\ cosmology ($\omega_b\,0.0224$, $h\,0.674$, $\tau\,0.054$, $n_s\,0.965$, $\ln(10^{10}A_s)\,3.044$, $\om\,0.15$) plus one axion ($n=3$, $\theta_i=2.8$), $f_{\rm EDE}=0.12$ at $z_c=10^4$. Nothing re-tuned: $100\theta_s=1.031$ vs $1.049$.
+  \item \lcdm\ fit: $\om=0.1397\pm0.0011$ ($-9.1\sigma$), $h=0.641$ ($-6.1\sigma$), $n_s=0.943$ ($-6.2\sigma$), $\omega_b$ $-6.4\sigma$; $\chi^2_{\min}=13.8$.
+  \item $\om(\ell)$: $b=-0.0084\pm0.0039$, $c=0.0099\pm0.0049$; $(b,c)=0$ at $\chi^2=5.3$ for 2 dof (PTE 0.07, $1.8\sigma$); $\Delta\chi^2_{\min}=5.2$. Dip around $\ell\sim800$, rise above $\ell\sim1500$.
+\end{itemize}
+{\tiny Runs of 2026-10-23. poly: 5 of 8 chains at 90--96k steps when copied (still running); max $R-1$ 0.0009 (poly), 0.0004 (fixed).\par}
+\end{frame}
+
+% ======================================================================
+\begin{frame}{1-axion EDE mock: 10 bins, prior vs posterior}
+\centering
+\includegraphics[width=0.92\textwidth]{ede1_bins_prior}\\[-0.2em]
+\raggedright
+\begin{itemize}\scriptsize
+  \item Flat prior $[0.11,0.21]$ on each bin (68\%: $[0.126,0.194]$); posterior $\sigma=0.0012$--$0.0015$ per bin: data-dominated in every bin.
+  \item No deviation between bins: $\om=0.1396$--$0.1402$, test ``all bins equal'' $\chi^2=0.65$ for 9 dof. The bins follow the \lcdm\ fit, not the curvature seen by the smooth model (right panel, dashed).
+\end{itemize}
+{\tiny Preliminary: chains still running (89--100k steps when copied), acceptance 0.04, max $R-1=0.043$; lowest $\chi^2$ in the chains 15.8 (above the 1-bin 13.8: minimum not reached at this acceptance).\par}
+\end{frame}
+
+\end{document}

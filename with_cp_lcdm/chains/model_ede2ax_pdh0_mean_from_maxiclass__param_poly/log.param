@@ -1,4 +1,4 @@
-#-----CLASS shim (branch: 3.6, hash: 3145c4ba952223af9ebbc71658e3e1962911876d)-----
+#-----CLASS shim (branch: 3.6, hash: 7408d4bc7589fad22b7c2044c2d626d42917e111)-----
 
 #----- smooth delta omega_m(l), quadratic, linear response -- pipeline: with_cp_lcdm -----
 # Spectra: CosmoPower lcdm v1 emulators (Bolliet et al. 2023), stand-in in

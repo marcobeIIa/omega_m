@@ -4,8 +4,8 @@ check_install.py -- is this mAxiCLASS build giving the right cosmologies?
 Run from omega_m/ in the env you built it with (conda activate maxiclass):
     python with_maxiclass/check_install.py
 
-1. git: branch/upstream/commit of with_maxiclass/maxiclass; must contain the h/H0
-   fix 1de71f2 (mAxiCLASShoot; reference commit b5a3af9 used for the mocks in model/).
+1. git: branch/upstream/commit of with_maxiclass/maxiclass (information only; the
+   wrapper passes H0, which every branch reads).
 2. LCDM limit (no EDE) at omega_m 0.15 vs with_class_mnu/model/lcdm.dat (CLASS 3.4.1).
    Reference build: sqrt(chi2) = 0.05.
 3. 2-axion EDE (make_mocks.sh recipe) vs with_maxiclass/model/ede2ax_pdh0_mean.dat.
@@ -80,15 +80,9 @@ branch, commit = git("rev-parse", "--abbrev-ref", "HEAD"), git("rev-parse", "--s
 upstream = git("rev-parse", "--abbrev-ref", "@{u}")
 print("branch: %s (tracks %s)   commit: %s   (reference: mAxiCLASShoot %s)"
       % (branch, upstream, commit, REF_COMMIT))
-# what matters: the h/H0 reading fix 1de71f2 (missing on MP-branch) is in this checkout
-has_h_fix = subprocess.run(["git", "-C", MAXI, "merge-base", "--is-ancestor", "1de71f2", "HEAD"]).returncode == 0
-print("contains the h/H0 fix (1de71f2):", "yes" if has_h_fix else "NO")
 print("last commit:", git("log", "-1", "--format=%cd  %s", "--date=short"))
 dirty = git("status", "--porcelain", "--untracked-files=no")
 print("local changes to tracked files:", "none" if not dirty else "\n" + dirty)
-results.append(has_h_fix)
-if not has_h_fix:
-    print("  <-- 'h' is not read by this code (MP-branch?): switch to mAxiCLASShoot, then rebuild")
 
 sys.path.insert(0, os.path.join(ROOT, "with_maxiclass", "class", "python"))
 import classy  # noqa: E402  (the with_maxiclass wrapper)
